@@ -1,0 +1,8 @@
+# Pinned dependencies are added milestone by milestone.
+# CI (Python 3.12 on Linux) installs this file, so every entry must install there.
+#
+# Planned (not yet installed):
+#   Part A/C : pytest, scikit-learn, pandas
+#   Part C   : mage-ai
+#   Part B   : snowflake-connector-python
+#   Part D   : pika

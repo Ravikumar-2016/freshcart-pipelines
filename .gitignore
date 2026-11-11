@@ -1,0 +1,22 @@
+# --- Required by the assignment ---
+.env
+*.pkl
+*.csv
+mage.log
+__pycache__/
+
+# --- Python / environments ---
+.venv/
+venv/
+*.py[cod]
+.pytest_cache/
+.ipynb_checkpoints/
+
+# --- Mage runtime artefacts ---
+.mage_data/
+.logs/
+
+# --- Editor / OS ---
+.vscode/
+.DS_Store
+Thumbs.db
