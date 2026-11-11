@@ -10,13 +10,15 @@ Status: [ ] not started, [~] in progress, [x] done WITH evidence (cite it).
 - [ ] Report PDF `RollNo_Name_Pipelines.pdf` (max 8 pages excl. appendix)
 
 ## Part A
-- [~] A1 structure: folders, README, .gitignore, requirements.txt created (test + ci.yml pending)
-- [ ] A1 five+ meaningful commits; `git log --oneline` pasted
-- [ ] A2 command table + "can teammate see after commit?" answer
-- [ ] A3 test_prepare_data.py (120/30)
-- [ ] A3 ci.yml (push; checkout, Python 3.12, install, pytest)
-- [ ] A3 green run screenshot
-- [ ] A3 red run screenshot (test_size=0.3) + fixing commit
+- [x] A1 structure: all required files/folders exist (evidence: repo tree, commit 6d86300)
+- [~] A1 five+ commits: 5 so far (4ef2ad1..0c83c3e), log pasted in answers.md; re-paste at the end
+- [~] A2 command table + "can teammate see after commit?" answer: drafted in answers.md; student must rephrase in own words
+- [x] A3 test_prepare_data.py (120/30): local pytest passes
+- [x] A3 ci.yml: runs on push (CI #1 green)
+- [x] A3 green run screenshot: report/screenshots/A/A3_green.png (verified: CI #1, 6d86300)
+- [x] A3 red run screenshot: report/screenshots/A/A3_red.png (verified: CI #2, b038cf1)
+- [x] A3 fixing commit 0c83c3e + restored green run: report/screenshots/A/A3_final_green.png (verified: CI #3 green)
+- [ ] Repo visibility: private now; share with instructor or make public
 
 ## Part B (needs Snowflake + FreshCart notebook)
 - [ ] B1 baseline: 8 raw / 6 clean / 2 quarantine / 4 dedup / 4 orders, 7,785.00, 126 pts / 25%
