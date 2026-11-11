@@ -1,0 +1,15 @@
+WARNING:traitlets:Message signing is disabled.  This is insecure and not recommended!
+WARNING:traitlets:Message signing is disabled.  This is insecure and not recommended!
+INFO:mage_ai.data_preparation.executors.pipeline_executor:[PipelineExecutor] No running loop, using asyncio.run
+DBT library not installed.
+--------------------------------------------------------------
+1/1 tests passed.
+--------------------------------------------------------------
+1/1 tests passed.
+max_depth=3 test_accuracy=1.0000
+--------------------------------------------------------------
+1/1 tests passed.
+Saved 30 rows to c:\Users\Ravi\Downloads\DataEngineeringAssignment\freshcart-pipelines\iris_predictions.csv
+--------------------------------------------------------------
+1/1 tests passed.
+Pipeline run completed.

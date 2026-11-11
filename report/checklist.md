@@ -28,10 +28,12 @@ Status: [ ] not started, [~] in progress, [x] done WITH evidence (cite it).
 - [ ] B5 sixth check; deliberate failure + PROBLEM output; ELT vs ETL answer
 
 ## Part C (needs Mage + Mage reference notebook)
-- [ ] C1 graph + `mage run iris_project iris_classifier --test` output
-- [ ] C2 max_depth 1-5 table + gate explanation
-- [ ] C3 evaluate_model branch, metadata.yaml, confusion matrix, metrics, UI screenshot
-- [ ] C4 own block + @test, committed, CI green
+- [x] Mage compatibility (native Windows, Python 3.12.6): mage-ai 0.9.80 installed in .venv; `pip check` clean; `mage init` OK; UI served HTTP 200 on localhost; pytest still passes. WSL NOT needed so far. (`mage run` of a real pipeline still to be tested in C1.) Not yet added to requirements.txt (decide in Part C: it downgrades numpy/pandas/scikit-learn to 1.26.4/2.3.3/1.7.2, all within current ranges.)
+- [x] C1 graph (ASCII in answers.md; student may redraw) + `mage run ... --test` output: screenshots/C/C1_mage_run_test.txt
+- [x] C2 max_depth 1-5 table (depth 1 fails gate, no CSV; 2-5 pass) with logs C2_depth_N.txt; [~] explanation drafted, student must rewrite in own words
+- [x] C3 evaluate_model branch, confusion matrix + metrics (C3_eval_depth_2.txt), UI screenshot C3_mage_ui_pipeline_graph.png; [ ] Cloudflare tunnel NOT done (localhost used); ask instructor
+- [~] C4 validate_data block + 2 @tests executed and passing locally; NOT yet committed/pushed, CI green for it NOT yet confirmed
+- [ ] Differences vs Mage reference notebook unknown (notebook not available); MIN_ACCURACY=0.90 is my own choice
 
 ## Part D (needs RabbitMQ)
 - [ ] D1 table (BEFORE running) + 2-word key explanation

@@ -1,0 +1,34 @@
+WARNING:traitlets:Message signing is disabled.  This is insecure and not recommended!
+WARNING:traitlets:Message signing is disabled.  This is insecure and not recommended!
+INFO:mage_ai.data_preparation.executors.pipeline_executor:[PipelineExecutor] No running loop, using asyncio.run
+DBT library not installed.
+--------------------------------------------------------------
+1/1 tests passed.
+validate_data: 150 rows, 0 missing values, 3 classes
+--------------------------------------------------------------
+2/2 tests passed.
+--------------------------------------------------------------
+1/1 tests passed.
+max_depth=3 test_accuracy=1.0000
+--------------------------------------------------------------
+1/1 tests passed.
+Confusion matrix:
+Saved 30 rows to c:\Users\Ravi\Downloads\DataEngineeringAssignment\freshcart-pipelines\iris_predictions.csv
+                   pred_setosa  pred_versicolor  pred_virginica
+actual_setosa               10                0               0
+actual_versicolor            0                9               0
+actual_virginica             0                0              11
+
+Metrics table:
+       class  precision  recall  f1-score  support
+      setosa        1.0     1.0       1.0     10.0
+  versicolor        1.0     1.0       1.0      9.0
+   virginica        1.0     1.0       1.0     11.0
+    accuracy        1.0     1.0       1.0      1.0
+   macro avg        1.0     1.0       1.0     30.0
+weighted avg        1.0     1.0       1.0     30.0
+--------------------------------------------------------------
+1/1 tests passed.
+--------------------------------------------------------------
+1/1 tests passed.
+Pipeline run completed.

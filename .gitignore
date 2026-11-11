@@ -15,6 +15,10 @@ venv/
 # --- Mage runtime artefacts ---
 .mage_data/
 .logs/
+.ssh_tunnel/
+.variables/
+.file_versions/
+mage-ai.db
 
 # --- Editor / OS ---
 .vscode/

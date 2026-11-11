@@ -1,0 +1,5 @@
+max_depth=1 | exit=1 | test_accuracy=0.6333 | csv_created=NO
+max_depth=2 | exit=0 | test_accuracy=0.9667 | csv_created=YES
+max_depth=3 | exit=0 | test_accuracy=1.0000 | csv_created=YES
+max_depth=4 | exit=0 | test_accuracy=1.0000 | csv_created=YES
+max_depth=5 | exit=0 | test_accuracy=1.0000 | csv_created=YES
