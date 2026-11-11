@@ -23,7 +23,7 @@ if 'test' not in globals():
 @transformer
 def transform(df, *args, **kwargs):
     """Return a copy of df with a `split` column: 'train' (80%) or 'test' (20%)."""
-    train_idx, test_idx = train_test_split(df.index, test_size=0.3, random_state=42)
+    train_idx, test_idx = train_test_split(df.index, test_size=0.2, random_state=42)
     out = df.copy()
     out['split'] = 'train'
     out.loc[test_idx, 'split'] = 'test'
