@@ -1,0 +1,129 @@
+B4 notebook outputs (executed 2026-11-12 against Snowflake FRESHCART_DB)
+
+=== cell 52 ===
+events in MOCK_CRM_TIER_EVENTS: 5
+   cust_id              email      tier effective_from
+0  CUST-01  priya.r@gmail.com    Silver     2023-04-10
+1  CUST-01  priya.r@gmail.com      Gold     2026-09-03
+2  CUST-02   arjun.k@yahoo.in    Silver     2024-01-15
+3  CUST-03  meera@outlook.com  Platinum     2022-11-01
+4  CUST-02   arjun.k@yahoo.in      Gold     2026-08-15
+
+=== cell 54 ===
+CUST-02 rows in dim.customers_scd2 BEFORE: 1
+bronze row counts BEFORE: {'orders_raw': 16, 'customers_raw': 8, 'fx_raw': 2, 'pincode_raw': 3}
+   ORDER_ID      TIER  MULTIPLIER  LOYALTY_POINTS             ROW_HASH  \
+0  ORD-1001    Silver           1              12  4284627330879666653   
+1  ORD-1002    Silver           1              35 -7698738864412791922   
+2  ORD-1003  Platinum           3              63 -1632326326823866187   
+3  ORD-1005      Gold           2              16  -231880702048109571   
+                      PUBLISHED_AT  
+0 2026-11-11 20:09:29.606000-08:00  
+1 2026-11-11 20:09:29.606000-08:00  
+2 2026-11-11 20:09:29.606000-08:00  
+3 2026-11-11 20:09:29.606000-08:00  
+
+=== cell 56 ===
+run_id: 20261112_043003
+1. EXTRACT: sample data -> raw files
+   web: 6 records -> elt\landing\web\web__20261112_043003.json.gz
+   mobile: 2 records -> elt\landing\mobile\mobile__20261112_043003.json.gz
+   crm: 5 records -> elt\landing\crm\crm__20261112_043003.json.gz
+   fx: 1 records -> elt\landing\fx\fx__20261112_043003.json.gz
+2. LOAD: raw files -> bronze tables
+   6 rows -> bronze.orders_raw
+   2 rows -> bronze.orders_raw
+   5 rows -> bronze.customers_raw
+   1 rows -> bronze.fx_raw
+3. TRANSFORM: bronze -> silver -> gold
+   new pincodes to look up: []
+4. CHECK
+   rows gained or lost while enriching    0   OK
+   duplicate orders in gold               0   OK
+   orders with no customer match          0   OK
+   orders with an amount but no FX rate   0   OK
+   orders with no city                    0   OK
+   share of rows rejected                 25%
+GOLD: 4 orders, revenue ₹7785.00, 161 loyalty points
+
+=== cell 58 ===
+gold BEFORE the B4 run (Time Travel):
+   ORDER_ID      TIER  MULTIPLIER  LOYALTY_POINTS             ROW_HASH  \
+0  ORD-1001    Silver           1              12  4284627330879666653   
+1  ORD-1002    Silver           1              35 -7698738864412791922   
+2  ORD-1003  Platinum           3              63 -1632326326823866187   
+3  ORD-1005      Gold           2              16  -231880702048109571   
+                      PUBLISHED_AT  
+0 2026-11-11 20:09:29.606000-08:00  
+1 2026-11-11 20:09:29.606000-08:00  
+2 2026-11-11 20:09:29.606000-08:00  
+3 2026-11-11 20:09:29.606000-08:00  
+5 of 5 predictions match; rows with changed row_hash: 1
+                                     prediction actual match?
+CUST-02 rows in dim.customers_scd2            2      2    YES
+Tier used for ORD-1002                     Gold   Gold    YES
+Loyalty points for ORD-1002                  70     70    YES
+Total loyalty points in gold                161    161    YES
+Gold rows whose published_at changed          1      1    YES
+
+=== cell 59 ===
+CUST-02 in dim.customers_scd2 (AFTER):
+   CUST_ID    TIER  VALID_FROM    VALID_TO  IS_CURRENT
+0  CUST-02  Silver  2024-01-15  2026-08-14       False
+1  CUST-02    Gold  2026-08-15  9999-12-31        True
+Gold rows: before vs after (only ORD-1002 should differ):
+   ORDER_ID TIER_before  MULTIPLIER_before  LOYALTY_POINTS_before  \
+0  ORD-1001      Silver                  1                     12   
+1  ORD-1002      Silver                  1                     35   
+2  ORD-1003    Platinum                  3                     63   
+3  ORD-1005        Gold                  2                     16   
+       ROW_HASH_before              PUBLISHED_AT_before TIER_after  \
+0  4284627330879666653 2026-11-11 20:09:29.606000-08:00     Silver   
+1 -7698738864412791922 2026-11-11 20:09:29.606000-08:00       Gold   
+2 -1632326326823866187 2026-11-11 20:09:29.606000-08:00   Platinum   
+3  -231880702048109571 2026-11-11 20:09:29.606000-08:00       Gold   
+   MULTIPLIER_after  LOYALTY_POINTS_after       ROW_HASH_after  \
+0                 1                    12  4284627330879666653   
+1                 2                    70  3392257107350681567   
+2                 3                    63 -1632326326823866187   
+3                 2                    16  -231880702048109571   
+                PUBLISHED_AT_after  
+0 2026-11-11 20:09:29.606000-08:00  
+1 2026-11-11 20:30:13.292000-08:00  
+2 2026-11-11 20:09:29.606000-08:00  
+3 2026-11-11 20:09:29.606000-08:00  
+
+=== cell 61 ===
+rows whose published_at changed in the second pass: 0
+gold totals after the second pass: (4, Decimal('7785.00'), 161)
+   ORDER_ID        ROW_HASH_run1                PUBLISHED_AT_run1  \
+0  ORD-1001  4284627330879666653 2026-11-11 20:09:29.606000-08:00   
+1  ORD-1002  3392257107350681567 2026-11-11 20:30:13.292000-08:00   
+2  ORD-1003 -1632326326823866187 2026-11-11 20:09:29.606000-08:00   
+3  ORD-1005  -231880702048109571 2026-11-11 20:09:29.606000-08:00   
+         ROW_HASH_run2                PUBLISHED_AT_run2  published_at_kept?  \
+0  4284627330879666653 2026-11-11 20:09:29.606000-08:00                True   
+1  3392257107350681567 2026-11-11 20:30:13.292000-08:00                True   
+2 -1632326326823866187 2026-11-11 20:09:29.606000-08:00                True   
+3  -231880702048109571 2026-11-11 20:09:29.606000-08:00                True   
+   row_hash_same?  
+0            True  
+1            True  
+2            True  
+3            True  
+
+=== cell 63 ===
+bronze.orders_raw rows per run (each full pipeline run adds one group of 8):
+            RUN_ID  ORDER_ROWS  WEB  MOBILE  LANDING_FILES
+0  20261112_040919           8    6       2              2
+1  20261112_042326           8    6       2              2
+2  20261112_043003           8    6       2              2
+this run added 8 order rows, 5 CRM rows (the 4 old events + the new one), 1 FX reply, and no pincodes (all already known):
+               before B4 run  after B4 run  added by this run
+orders_raw                16            24                  8
+customers_raw              8            13                  5
+fx_raw                     2             3                  1
+pincode_raw                3             3                  0
+
+error outputs in whole notebook: 0
+pipeline-run cells executed in B4 section (cell 56 run_ids): ['20261112_043003']

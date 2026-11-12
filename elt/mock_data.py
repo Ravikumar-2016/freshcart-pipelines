@@ -53,6 +53,8 @@ MOCK_CRM_TIER_EVENTS = [
     {"cust_id": "CUST-01", "email": "priya.r@gmail.com", "tier": "Gold", "effective_from": "2026-09-03"},
     {"cust_id": "CUST-02", "email": "arjun.k@yahoo.in", "tier": "Silver", "effective_from": "2024-01-15"},
     {"cust_id": "CUST-03", "email": "meera@outlook.com", "tier": "Platinum", "effective_from": "2022-11-01"},
+    # B4: Arjun moves to Gold earlier than ORD-1002's order date (2026-09-01)
+    {"cust_id": "CUST-02", "email": "arjun.k@yahoo.in", "tier": "Gold", "effective_from": "2026-08-15"},
 ]
 
 # ---- Exchange rates: rupees per 1 US dollar, per day ----

@@ -155,6 +155,43 @@ What cannot be known exactly without running: the actual `published_at` timestam
 
 Still to write after the run (4-6 sentences, your own words): how `row_hash` and `MERGE` make gold safe to re-run, and why bronze still grows by 8 order rows on every run.
 
+#### ACTUAL RESULTS (separate from the predictions above, which were not edited)
+Event added to `MOCK_CRM_TIER_EVENTS` in `elt/mock_data.py`; one full `fc.run_pipeline()` on 2026-11-12, run_id `20261112_043003` (04:30:03 UTC).
+Evidence (`report/screenshots/B/`): `B4_before_published_at.txt` (read-only snapshot taken before anything changed), `B4_prerun_state.txt`, `B4_notebook_outputs.txt`,
+`B4_notebook_part1.png` / `B4_notebook_part2.png` (rendered notebook section, headless Edge, not Snowsight), `B4_independent_verification.txt` (fresh connection). Notebook: section "B4" in `elt/freshcart_elt.ipynb`.
+
+| Quantity | Committed prediction (72e290d) | **Actual** | Match |
+|---|---|---|---|
+| Rows for CUST-02 in `dim.customers_scd2` | 2 | **2** (Silver 2024-01-15 to 2026-08-14; Gold 2026-08-15 to 9999-12-31) | yes |
+| Tier used for ORD-1002 | Gold | **Gold** (multiplier 2) | yes |
+| Loyalty points for ORD-1002 | 70 | **70** (FLOOR(3536.00/100) x 2) | yes |
+| Total loyalty points in gold | 161 | **161** (12 + 70 + 63 + 16); revenue unchanged 7,785.00 | yes |
+| Gold rows whose `published_at` changed | 1 | **1** (ORD-1002 only) | yes |
+
+**Discrepancies between prediction and actual: none.**
+
+Details. `published_at` before: all four rows 2026-11-11 20:09:29.606 -08:00 (= 04:09:29 UTC, the B1 run). After: ORD-1002 2026-11-11 20:30:13.292 -08:00 (= 04:30:13 UTC, the B4 run);
+ORD-1001, ORD-1003 and ORD-1005 unchanged. `row_hash` changed only for ORD-1002 (-7698738864412791922 to 3392257107350681567). Gold: 4 orders, 7785.00, 161 points.
+
+**Idempotence check (second pass).** I ran only the transformation again (`SQL_30_CUSTOMERS_SCD2` then `SQL_40_GOLD`, nothing loaded). Result: 0 rows changed `published_at`
+(ORD-1002 kept 20:30:13.292, the others kept 20:09:29.606), every `row_hash` identical, totals still 4 / 7785.00 / 161.
+
+**Bronze growth.** `bronze.orders_raw` holds exactly 8 rows (6 web + 2 mobile, 2 landing files) for each of the three runs (`20261112_040919`, `20261112_042326`, `20261112_043003`) = 24 rows.
+The B4 run added 8 order rows (16 to 24), 5 CRM rows (8 to 13; the 4 old events plus the new one, 5 distinct events in total), 1 FX reply (2 to 3) and 0 pincodes (already known).
+`silver.orders_dedup` stayed at 4 and `quarantine.orders` at 2.
+
+Process note (honest record). The first execution of my notebook's analysis cell failed with a `KeyError` (Snowflake returns column names in upper case, my code used lower case) **after** the pipeline cell had already run once.
+I did not run the pipeline again. The "before" state was rebuilt with Snowflake Time Travel (tables as of 04:30:00 UTC, just before the run) and matches the pre-run snapshot file exactly. Because the cells were executed in two kernel sessions,
+the `In [n]` counters in the notebook restart in the middle of the B4 section.
+
+> DRAFT explanation written by the assistant: rewrite in your own words before submitting (assignment: 4-6 sentences).
+
+**How `row_hash` and `MERGE` make gold safe to re-run, and why bronze still grows by 8 rows per run.** `SQL_40_GOLD` rebuilds `silver.orders_enriched` from scratch on every run and then `MERGE`s it into `gold.fct_orders`, matching on `order_id`.
+For each order it computes `row_hash`, a `HASH` over all business columns (tier, multiplier, amounts, loyalty points, location, `updated_at`). The `MERGE` only does an `UPDATE` (and sets a new `published_at`) `WHEN MATCHED AND t.row_hash <> s.row_hash`,
+and only `INSERT`s `WHEN NOT MATCHED`, so re-running never creates a second row for an order and never touches a row whose values did not change; in B4 only ORD-1002 changed, and the second pass changed nothing.
+Bronze, in contrast, is an append-only record of what was received: every run extracts the same 8 raw orders again, writes them to new landing files named with the new `run_id`, and `COPY INTO` appends them, and bronze does no deduplication.
+The duplicates are removed later in silver (`QUALIFY ROW_NUMBER() ... = 1` in `SQL_20_ORDERS_DEDUP`), which is why silver and gold stay the same size while bronze grows by 6 web + 2 mobile = 8 rows each run.
+
 ### B5
 
 ## Part C

@@ -1,0 +1,12 @@
+B4 BEFORE the event / run: gold published_at for all four existing rows (read-only)
+checked at (UTC): 2026-11-12 04:29:07
+Connected: role=ACCOUNTADMIN warehouse=FRESHCART_WH database=FRESHCART_DB
+ORDER_ID     TIER  MULTIPLIER  LOYALTY_POINTS             ROW_HASH                     PUBLISHED_AT
+ORD-1001   Silver           1              12  4284627330879666653 2026-11-11 20:09:29.606000-08:00
+ORD-1002   Silver           1              35 -7698738864412791922 2026-11-11 20:09:29.606000-08:00
+ORD-1003 Platinum           3              63 -1632326326823866187 2026-11-11 20:09:29.606000-08:00
+ORD-1005     Gold           2              16  -231880702048109571 2026-11-11 20:09:29.606000-08:00
+
+TOTALS: (4, Decimal('7785.00'), 126)
+CUST-02 rows in dim.customers_scd2: 1
+bronze rows: orders_raw 16 | customers_raw 8 | fx_raw 2 | pincode_raw 3
