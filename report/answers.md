@@ -227,12 +227,11 @@ Notebook cleanup checks: **19 of 19 PASS**. An independent snapshot taken after 
 Evidence (`report/screenshots/B/`): `B5_notebook_part1.png` (check, mock order, load, the PROBLEM output), `B5_notebook_part2.png` (pre-delete counts, delete, recovery, 19/19 PASS) (rendered notebook, headless Edge, not Snowsight),
 `B5_notebook_outputs.txt`, `B5_before_state.txt`, `B5_after_state.txt`. Notebook: section "B5" in `elt/freshcart_elt.ipynb`.
 
-> DRAFT written by the assistant: rewrite in your own words before submitting (assignment: 3-4 sentences). **One part needs you:** the assignment asks for "the one situation from the lecture"
-> where ETL still wins; the lecture material is not available to me, so the ETL situation below is a general textbook one. Replace it with the situation your lecture named.
+> Wording drafted by Claude (student to put it in own words; see report/USER_REVIEW_REQUIRED.md). The ETL situation is taken from the course notes in `material.zip`
+> (`30-09-2026/data_transformation_orchestration.html`, section "ETL and ELT: where the transformation runs"); the lecture PDF and the xlsx named by the student were not found on this machine, so the student should confirm this is the situation the lecture showed.
 
-**Why is ELT better than ETL for FreshCart, and when would ETL still win?** FreshCart's sources send messy data in different shapes (flat web JSON, nested mobile JSON, bad emails, duplicates), so it is better to land everything unchanged in bronze first and clean it afterwards with SQL inside Snowflake.
-That keeps a raw copy of everything received, so a changed rule or a late fix is just a re-run of the SQL (B3 added a rule, B4 a tier change, both without re-extracting anything), and bad rows go to quarantine with reasons instead of being lost; the warehouse does the heavy work, so the Python side stays small.
-ETL would still win when the data must be changed *before* it is allowed to land in the warehouse, for example when personal or card data has to be masked or removed first for compliance, because ELT would store the raw sensitive values in bronze.
+**Why ELT suits FreshCart.** FreshCart's sources send messy data in different shapes (flat web JSON, nested mobile JSON, duplicates, bad emails), so it is better to land everything unchanged in bronze and clean it with SQL inside Snowflake: the raw copy is kept, a changed rule or late fix is a re-run of the SQL (B3 and B4 needed no re-extraction), bad rows go to quarantine with reasons, and the warehouse does the heavy work.
+**When ETL still wins (course notes).** ETL is the better fit for strict pre-load compliance, small or costly targets and heavy non-SQL processing; the notes stress sensitive data: ETL can mask or drop personal data (e.g. hash an Aadhaar number, drop a card number) before it lands, whereas in ELT the raw personal data lands in bronze and needs masking policies and access control from day one.
 
 ## Part C
 > Reference-notebook note: the Mage Iris reference notebook was NOT available. Everything below

@@ -78,3 +78,9 @@ Status: [ ] not started, [~] in progress, [x] done WITH evidence (cite it).
 ## Finalisation (submission stage)
 - [x] Final PDF generated: report/23BCS095_Gunti_Ravi_Kumar_Pipelines.pdf (body 5 pages, limit 8, plus screenshot appendix). Draft explanations are listed in report/USER_REVIEW_REQUIRED.md (NOT yet reviewed by the student); B5's lecture ETL situation is a visible placeholder for the student.
 - [x] Final checks: pytest 10 passed; compile OK; elt notebook 41/41 code cells executed, 0 errors; Mage notebook 7/7 executed, 0 errors; FRESHCART_DB baseline 4 / 7785.00 / 161 unchanged.
+
+## Final audit (see report/AUDIT.md)
+- [x] Original assignment (Assignment_DE.docx, in Downloads) and course bundle (material.zip) inspected; requirement-by-requirement audit in report/AUDIT.md
+- [x] B5 ETL answer now supported by the course notes in material.zip (ETL lecture PDF and RiverRetail xlsx NOT found; student to confirm)
+- [x] Report corrected (B4 hash columns, C2 threshold wording, C3 metadata.yaml, D2 times/log excerpt, reflection factual); PDF regenerated, 5 body pages + 20 appendix pages, text selectable
+- [ ] NEEDS INSTRUCTOR CONFIRMATION: Cloudflare tunnel wording in C3; Snowsight/terminal screenshots vs notebook renders and logs; accuracy threshold for the Mage gate

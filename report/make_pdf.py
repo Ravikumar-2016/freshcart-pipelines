@@ -33,6 +33,8 @@ def main():
     build = HERE / "build"
     build.mkdir(exist_ok=True)
     gitlog = subprocess.run(["git", "log", "--oneline"], cwd=ROOT, capture_output=True, text=True, encoding="utf-8").stdout
+    head = subprocess.run(["git", "rev-parse", "--short", "HEAD"], cwd=ROOT, capture_output=True, text=True).stdout.strip()
+    gitlog = "(snapshot taken when HEAD was " + head + "; later commits are not listed)\n" + gitlog
     text = (HERE / "report.html").read_text(encoding="utf-8")
     text = text.replace("{{GITLOG}}", html.escape(gitlog)).replace("{{ROLL}}", html.escape(roll or "[roll number]")) \
                .replace("{{NAME}}", html.escape(name.replace("_", " ") if name else "[name]"))
