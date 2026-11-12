@@ -1,0 +1,18 @@
+Bonus independent verification after cleanup (fresh connections)   2026-11-12 05:35:39 UTC
+Connected: role=ACCOUNTADMIN warehouse=FRESHCART_WH database=FRESHCART_DB
+  bronze.orders_raw        24
+  bronze.customers_raw     13
+  silver.orders_dedup      4
+  quarantine.orders        2
+  gold.fct_orders          4
+gold totals: (4, Decimal('7785.00'), 161)
+gold rows:
+ORDER_ID     TIER AMOUNT_INR  LOYALTY_POINTS                     PUBLISHED_AT
+ORD-1001   Silver    1250.00              12 2026-11-11 20:09:29.606000-08:00
+ORD-1002     Gold    3536.00              70 2026-11-11 20:30:13.292000-08:00
+ORD-1003 Platinum    2100.00              63 2026-11-11 20:09:29.606000-08:00
+ORD-1005     Gold     899.00              16 2026-11-11 20:09:29.606000-08:00
+BONUS-TEST rows in bronze/gold/quarantine: 0 0 0
+bronze run_ids: ['20261112_040919', '20261112_042326', '20261112_043003']
+stage folders orders_web: ['20261112_040919', '20261112_042326', '20261112_043003']
+bonus queue: deleted (passive declare -> not found)

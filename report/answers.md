@@ -400,3 +400,29 @@ Evidence: `report/screenshots/D/D2_dispatcher.log`, `D2_driver_<Name>.log`, `D2_
 ### Reflection (half page)
 
 ## Bonus
+**Flow (message -> landing -> Snowflake -> gold).** `stream/order_consumer.py` consumes FreshCart-style *web* order messages (the flat shape of `MOCK_WEB_ORDERS`, because `SQL_10` reads `source IN ('web','mobile')`) from the durable queue `freshcart.orders.bonus`, bound to the existing exchange `rapido-dispatch` with routing key `freshcart.order.web` (matches none of the D1 driver patterns, so D1-D3 are unaffected).
+1. **Collect** for 60 s with manual acks (prefetch 200). A message that is not valid JSON or lacks `order_id` / `cust_email` / `order_date` is `basic_nack(requeue=False)` at once.
+2. **Landing:** the collected records are written by the existing `fc.write_landing("web", records, run_id)` to a `.json.gz` raw file (run id ends in `_bonusN`).
+3. **Load:** the existing `fc.load_file(path, "bronze.orders_raw", ...)` does `PUT` + `COPY INTO` into bronze.
+4. **ACK after durable hand-off:** only after the landing file is written AND loaded into bronze are the messages ACKed; if either step fails they are NACKed with `requeue=True`, so nothing is lost.
+5. **Transform:** the existing `fc.transform(run_id)` (the unchanged SQL 10 to 40: silver, dim, ref and the gold `MERGE`) and `fc.quality_checks()` (all six checks unchanged).
+`stream/bonus_demo.py` orchestrates the demonstration (it reuses `stream/common.py` and `elt/freshcart.py`; no existing file was modified).
+
+**Test data.** Three orders with identifiable ids `BONUS-TEST-001/002/003` (existing customers and pincodes, past dates, valid amounts), published together with a re-send of 001 (duplicate) and one malformed message (no `order_id`). Predicted effect on gold: Priya (Gold x2) 500 -> 10 pts, Meera (Platinum x3) 1,000 -> 30, Arjun (Gold x2 since 2026-08-15) 250 -> 4: **+3 orders, +1,750.00, +44 points**.
+
+**Actual results** (`python stream/bonus_demo.py 60`, 2026-11-12; `report/screenshots/Bonus/BONUS_run_output.txt`):
+| | Baseline | After run 1 | After run 2 |
+|---|---|---|---|
+| Messages collected / rejected / acked | | 4 / 1 / 4 | 4 / 1 / 4 |
+| `bronze.orders_raw` rows | 24 | 28 | 32 |
+| `silver.orders_dedup` | 4 | 7 | 7 |
+| Gold orders | 4 | **7** | **7** |
+| Gold revenue (INR) | 7,785.00 | **9,535.00** | **9,535.00** |
+| Gold loyalty points | 161 | **205** | **205** |
+The collection window was 60 s (the whole run took 64 s and 70 s because loading into Snowflake and the transform follow the window). Run 1 added exactly the predicted 3 orders / 1,750.00 / 44 points. The malformed message was NACKed (requeue=False) in both runs; the duplicate of 001 was collected and loaded, yet gold has one row per order.
+**Idempotency:** run 2 re-published and re-loaded the same orders; bronze grew by 4 rows (it keeps every copy), but `silver.orders_dedup`, gold orders, revenue and points did not change, every gold row kept the same `row_hash` and `published_at`, and there were 0 duplicate gold order ids. Why: the `QUALIFY ROW_NUMBER() ... = 1` in `20_orders_dedup.sql` keeps one copy per order, and the gold `MERGE` in `40_gold.sql` updates a row only when `row_hash` changed. The `COPY INTO` file-tracking does not prevent this because each run writes a new file; idempotency comes from silver and gold.
+
+**Cleanup (only the test data).** Before deleting, the script counted the exact markers and asserted them (it would have stopped without deleting): bronze rows with `BONUS-TEST-` ids 8 = rows in the two bonus runs 8 (other bronze rows 24 untouched); gold rows with the ids 3 (other gold rows 4 untouched); quarantine 0; staged files 2. Deleted exactly: 8 bronze rows, 3 gold rows, 2 staged files, 2 local landing files and the bonus queue. Silver and gold were rebuilt from the cleaned bronze. The final state is **identical to the baseline** (all 13 table counts, gold 4 / 7,785.00 / 161, every gold row incl. `row_hash` and `published_at`); an independent fresh-connection check confirms it (`BONUS_independent_verification.txt`), and the D1 routing verification still passes (6/6) and pytest shows 10 passed.
+Evidence (`report/screenshots/Bonus/`): `BONUS_run_output.txt`, `BONUS_independent_verification.txt`. Limitations: log/text evidence only (no screenshots, not Snowsight); the orders are test data, and the notebook `elt/freshcart_elt.ipynb` was not changed (the bonus runs as scripts).
+
+> DRAFT: the flow and idempotency explanation above was written by the assistant; rewrite it in your own words.

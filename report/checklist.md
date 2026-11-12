@@ -58,7 +58,7 @@ Status: [ ] not started, [~] in progress, [x] done WITH evidence (cite it).
 - [ ] All A-D answers in report
 
 ## Bonus
-- [ ] Stream to lakehouse; double run does not double gold totals
+- [x] Bonus stream to lakehouse: stream/order_consumer.py + stream/bonus_demo.py executed: two 60 s collections, gold 4/7785.00/161 -> 7/9535.00/205 after run 1 and UNCHANGED after run 2 (idempotent); malformed message NACKed; asserted cleanup, final state identical to baseline; evidence screenshots/Bonus/. [~] explanation is an assistant DRAFT; text evidence only. Not committed yet.
 
 ## Open blockers
 - [x] FreshCart notebook + flowchart (found in elt/ and elt/reference/)

@@ -1,0 +1,105 @@
+Connected: role=ACCOUNTADMIN warehouse=FRESHCART_WH database=FRESHCART_DB
+BASELINE before the bonus: 4 orders, revenue 7785.00, 161 points
+baseline counts: {'bronze.orders_raw': 24, 'bronze.customers_raw': 13, 'bronze.fx_raw': 3, 'bronze.pincode_raw': 3, 'silver.orders_checked': 24, 'silver.orders_clean': 18, 'silver.orders_dedup': 4, 'silver.orders_enriched': 4, 'dim.customers_scd2': 5, 'ref.fx_daily': 144, 'ref.pincode_geo': 3, 'quarantine.orders': 2, 'gold.fct_orders': 4}
+
+================ RUN 1: one-minute collection (60.0s) ================
+11:02:30.735 [orders] collecting from queue freshcart.orders.bonus (key freshcart.order.web) for 60.0s, run_id=20261112_053230_bonus1
+11:02:34.791 [publisher] sent BONUS-TEST-001 routed=True
+11:02:34.802 [orders] COLLECTED order_id=BONUS-TEST-001 (1 so far, not yet acked)
+11:02:34.858 [orders] COLLECTED order_id=BONUS-TEST-002 (2 so far, not yet acked)
+11:02:34.858 [publisher] sent BONUS-TEST-002 routed=True
+11:02:34.919 [publisher] sent BONUS-TEST-003 routed=True
+11:02:34.919 [orders] COLLECTED order_id=BONUS-TEST-003 (3 so far, not yet acked)
+11:02:34.981 [publisher] sent BONUS-TEST-001 routed=True
+11:02:34.982 [orders] COLLECTED order_id=BONUS-TEST-001 (4 so far, not yet acked)
+11:02:35.024 [publisher] sent (no order_id) routed=True
+11:02:35.035 [orders] REJECTED missing field 'order_id' -> NACK (requeue=False, discarded)
+   web: 4 records -> elt\landing\web\web__20261112_053230_bonus1.json.gz
+   4 rows -> bronze.orders_raw
+11:03:33.791 [orders] landing file written and loaded into bronze; ACKed 4 messages
+collection window lasted 63.7s; collected=4 (3 orders + 1 duplicate), rejected=1 (malformed), acked=4
+3. TRANSFORM: bronze -> silver -> gold
+   new pincodes to look up: []
+4. CHECK
+   rows gained or lost while enriching    0   OK
+   duplicate orders in gold               0   OK
+   orders with no customer match          0   OK
+   orders with an amount but no FX rate   0   OK
+   orders with no city                    0   OK
+   orders dated in the future             0   OK
+   share of rows rejected                 21%
+GOLD after run 1: 7 orders, revenue 9535.00, 205 loyalty points
+
+================ RUN 2: one-minute collection (60.0s) ================
+11:03:48.202 [orders] collecting from queue freshcart.orders.bonus (key freshcart.order.web) for 60.0s, run_id=20261112_053348_bonus2
+11:03:52.086 [publisher] sent BONUS-TEST-001 routed=True
+11:03:52.091 [orders] COLLECTED order_id=BONUS-TEST-001 (1 so far, not yet acked)
+11:03:52.146 [publisher] sent BONUS-TEST-002 routed=True
+11:03:52.146 [orders] COLLECTED order_id=BONUS-TEST-002 (2 so far, not yet acked)
+11:03:52.207 [publisher] sent BONUS-TEST-003 routed=True
+11:03:52.213 [orders] COLLECTED order_id=BONUS-TEST-003 (3 so far, not yet acked)
+11:03:52.269 [publisher] sent BONUS-TEST-001 routed=True
+11:03:52.269 [orders] COLLECTED order_id=BONUS-TEST-001 (4 so far, not yet acked)
+11:03:52.324 [publisher] sent (no order_id) routed=True
+11:03:52.324 [orders] REJECTED missing field 'order_id' -> NACK (requeue=False, discarded)
+   web: 4 records -> elt\landing\web\web__20261112_053348_bonus2.json.gz
+   4 rows -> bronze.orders_raw
+11:04:57.234 [orders] landing file written and loaded into bronze; ACKed 4 messages
+collection window lasted 69.9s; collected=4 (3 orders + 1 duplicate), rejected=1 (malformed), acked=4
+3. TRANSFORM: bronze -> silver -> gold
+   new pincodes to look up: []
+4. CHECK
+   rows gained or lost while enriching    0   OK
+   duplicate orders in gold               0   OK
+   orders with no customer match          0   OK
+   orders with an amount but no FX rate   0   OK
+   orders with no city                    0   OK
+   orders dated in the future             0   OK
+   share of rows rejected                 19%
+GOLD after run 2: 7 orders, revenue 9535.00, 205 loyalty points
+
+================ IDEMPOTENCY (run 1 vs run 2) ================
+run 1 added to gold: 3 orders, 1750.00 revenue, 44 points (expected (3, 1750.0, 44))
+bronze.orders_raw: baseline 24 -> run 1 28 -> run 2 32  (appends every run, incl. the duplicate)
+silver.orders_dedup: 7 -> 7   gold orders: 7 -> 7   revenue: 9535.00 -> 9535.00   points: 205 -> 205
+every gold row identical after run 2 (order_id, row_hash, published_at): True
+duplicate gold order_ids: 0
+IDEMPOTENCY RESULT: PASS (second run did not double-count)
+
+================ CLEANUP (only the BONUS-TEST markers) ================
+  bronze rows with BONUS-TEST ids            found   8  expected   8  ok
+  bronze rows in the two bonus runs          found   8  expected   8  ok
+  bronze rows: ids AND bonus runs            found   8  expected   8  ok
+  bronze OTHER rows (kept)                   found  24  expected  24  ok
+  gold rows with BONUS-TEST ids              found   3  expected   3  ok
+  gold OTHER rows (kept)                     found   4  expected   4  ok
+  quarantine rows with BONUS-TEST ids        found   0  expected   0  ok
+  staged files in the two run folders        found   2  expected   2  ok
+deleted: 8 bronze rows, 3 gold rows, 2 staged files, 2 local landing files, the bonus queue
+rebuild silver/gold from the cleaned bronze:
+   new pincodes to look up: []
+   rows gained or lost while enriching    0   OK
+   duplicate orders in gold               0   OK
+   orders with no customer match          0   OK
+   orders with an amount but no FX rate   0   OK
+   orders with no city                    0   OK
+   orders dated in the future             0   OK
+   share of rows rejected                 25%
+
+================ FINAL vs BASELINE ================
+  bronze.orders_raw          baseline   24  final   24  ok
+  bronze.customers_raw       baseline   13  final   13  ok
+  bronze.fx_raw              baseline    3  final    3  ok
+  bronze.pincode_raw         baseline    3  final    3  ok
+  silver.orders_checked      baseline   24  final   24  ok
+  silver.orders_clean        baseline   18  final   18  ok
+  silver.orders_dedup        baseline    4  final    4  ok
+  silver.orders_enriched     baseline    4  final    4  ok
+  dim.customers_scd2         baseline    5  final    5  ok
+  ref.fx_daily               baseline  144  final  144  ok
+  ref.pincode_geo            baseline    3  final    3  ok
+  quarantine.orders          baseline    2  final    2  ok
+  gold.fct_orders            baseline    4  final    4  ok
+  gold totals: baseline (4, 7785.0, 161) final (4, 7785.0, 161)
+  gold rows identical to baseline (incl. row_hash, published_at): True
+CLEANUP RESULT: PASS (state identical to the pre-bonus baseline)

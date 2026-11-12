@@ -40,6 +40,12 @@ python stream\dispatcher.py --duration 120      # every 2 s; every 10th message 
 python stream\d3_demo.py                        # D3: ACK / NACK / crash / requeue demo
 ```
 
+## Bonus: stream orders into the lakehouse
+```powershell
+python stream/order_consumer.py --seconds 60   # one batch: RabbitMQ -> landing -> bronze -> silver -> gold
+python stream/bonus_demo.py 60                 # two runs + idempotency check + safe cleanup (needs Snowflake and RabbitMQ in .env)
+```
+
 ## Status
 
 Tracked in `report/checklist.md`.
