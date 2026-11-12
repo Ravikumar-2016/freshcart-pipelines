@@ -20,7 +20,7 @@ Status: [ ] not started, [~] in progress, [x] done WITH evidence (cite it).
 - [x] A3 fixing commit 0c83c3e + restored green run: report/screenshots/A/A3_final_green.png (verified: CI #3 green)
 - [ ] Repo visibility: private now; share with instructor or make public
 
-## Part B (needs Snowflake account; reference notebooks now AVAILABLE, see report/part_b_plan.md)
+## Part B (Snowflake; the course reference notebooks in elt/ were used as the base)
 - [x] Reference material inspected: flowchart (13 steps) + 3 notebooks (simple/commented/colab); `elt/freshcart_elt.ipynb` prepared (outputs stripped, login from .env), NOT executed
 - [x] Part B dependencies identified (requirements-elt.txt); NOT installed
 - [ ] SECURITY: reference notebooks contain someone else's Snowflake login (git-ignored; never commit/use); consider telling the instructor
@@ -79,8 +79,8 @@ Status: [ ] not started, [~] in progress, [x] done WITH evidence (cite it).
 - [x] Final PDF generated: report/23BCS095_Gunti_Ravi_Kumar_Pipelines.pdf (body 5 pages, limit 8, plus screenshot appendix). Draft explanations are listed in report/USER_REVIEW_REQUIRED.md (NOT yet reviewed by the student); B5's lecture ETL situation is a visible placeholder for the student.
 - [x] Final checks: pytest 10 passed; compile OK; elt notebook 41/41 code cells executed, 0 errors; Mage notebook 7/7 executed, 0 errors; FRESHCART_DB baseline 4 / 7785.00 / 161 unchanged.
 
-## Final audit (see report/AUDIT.md)
-- [x] Original assignment (Assignment_DE.docx, in Downloads) and course bundle (material.zip) inspected; requirement-by-requirement audit in report/AUDIT.md
+## Final audit (see report/FINAL_ASSIGNMENT_COMPLIANCE_AUDIT.md)
+- [x] Original assignment (Assignment_DE.docx, in Downloads) and course bundle (material.zip) inspected; requirement-by-requirement audit in report/FINAL_ASSIGNMENT_COMPLIANCE_AUDIT.md (repository cleanup review: report/FINAL_REPOSITORY_CLEANUP_AUDIT.md)
 - [x] B5 ETL answer now supported by the course notes in material.zip (ETL lecture PDF and RiverRetail xlsx NOT found; student to confirm)
 - [x] Report corrected (B4 hash columns, C2 threshold wording, C3 metadata.yaml, D2 times/log excerpt, reflection factual); PDF regenerated, 5 body pages + 20 appendix pages, text selectable
 - [ ] NEEDS INSTRUCTOR CONFIRMATION (Cloudflare resolved): Snowsight/terminal screenshots vs notebook renders and logs; accuracy threshold for the Mage gate
