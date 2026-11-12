@@ -29,10 +29,10 @@ Status: [ ] not started, [~] in progress, [x] done WITH evidence (cite it).
 - [ ] `.env` filled in by student and `python elt\test_connection.py` run successfully (NOT done: no evidence yet)
 - [x] Database name/schemas: FRESHCART_DB used; DIM and REF schemas added in elt/sql/00_setup.sql and created (setup ran OK, 9 tables exist)
 - [x] Structure: SQL in elt/sql/*.sql, Python in elt/freshcart.py + elt/mock_data.py (mock data from reference notebook, labelled), notebook elt/freshcart_elt.ipynb; `pytest.ini` added so CI only collects tests/ (elt/test_connection.py imports snowflake)
-- [ ] Notebook cells 11-12 ('run it again', clean-up) intentionally NOT executed yet; final submission needs the notebook fully executed after B3-B5
+- [ ] Notebook: B1 and B3 sections executed; the final 'run it again' and clean-up cells are intentionally NOT executed yet (B4); final submission needs the notebook fully executed after B3-B5. Snowflake state now: 2 runs in bronze (16 order rows)
 - [x] B1 baseline: 8 raw / 6 clean / 2 quarantine / 4 dedup / 4 orders, 7,785.00, 126 pts / 25%: ALL VERIFIED (notebook 16/16 PASS + independent query). Evidence: screenshots/B/B1_notebook_part1-3.png, B1_independent_verification.txt, elt/freshcart_elt.ipynb. Rendered notebook captures, not Snowsight screenshots.
 - [~] B2 trace ORD-1003 (4 points) and ORD-1005: evidence screenshots/B/B2_evidence.txt; DRAFT trace in answers.md, student must rewrite in own words
-- [ ] B3 unsupported_currency rule; before/after; gold total; quarantine answer
+- [x] B3 unsupported_currency rule (elt/sql/10_orders_clean.sql line 49) executed: ORD-1006 reasons before [bad_email,bad_pincode] -> after [bad_email,bad_pincode,unsupported_currency] (silver.orders_checked; quarantine row keeps old reasons); gold unchanged (4 / 7785.00 / 126); no 2nd quarantine row (NOT EXISTS). Evidence: screenshots/B/B3_notebook_section.png, B3_notebook_outputs.txt, B3_independent_verification.txt. [~] explanations are assistant DRAFTS in answers.md: student must rewrite in own words. Not committed yet.
 - [ ] B4 predictions (BEFORE run) vs actuals; row_hash/MERGE explanation
 - [ ] B5 sixth check; deliberate failure + PROBLEM output; ELT vs ETL answer
 

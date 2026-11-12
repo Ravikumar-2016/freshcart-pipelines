@@ -1,0 +1,85 @@
+B3 notebook outputs (cells executed 2026-11-12, run against Snowflake FRESHCART_DB)
+
+=== cell 39 ===
+  ARRAY_CONSTRUCT_COMPACT(
+    IFF(order_id IS NULL, 'missing_order_id', NULL),
+    IFF(email IS NULL OR NOT REGEXP_LIKE(email, '^[^@\\s]+@[^@\\s]+\\.[a-z]{2,}$'), 'bad_email', NULL),
+    IFF(pincode IS NULL OR NOT REGEXP_LIKE(pincode, '^[1-9][0-9]{5}$'), 'bad_pincode', NULL),
+    IFF(currency IS NULL OR currency NOT IN ('INR', 'USD'), 'unsupported_currency', NULL),   -- B3: only INR and USD are accepted
+    IFF(order_date IS NULL, 'unparseable_date', NULL),
+    IFF(updated_at IS NULL, 'unparseable_updated_at', NULL),
+    IFF(amount <= 0, 'non_positive_amount', NULL)          -- NULL amount is allowed (flagged below)
+  ) AS reasons
+
+=== cell 41 ===
+{'bronze.orders_raw rows': 8, 'silver.orders_checked rows': 8, 'silver.orders_clean rows': 6, 'silver.orders_dedup rows': 4, 'quarantine.orders rows': 2, 'gold orders': 4, 'gold revenue_inr': '7785.00', 'gold loyalty points': 126}
+ORD-1006 in quarantine.orders (BEFORE):
+            RUN_ID SOURCE  ORDER_ID                      REASONS
+0  20261112_040919    web  ORD-1006  ["bad_email","bad_pincode"]
+ORD-1006 in silver.orders_checked (BEFORE):
+   INGEST_SEQ SOURCE  ORDER_ID CURRENCY                      REASONS
+0           6    web  ORD-1006      EUR  ["bad_email","bad_pincode"]
+
+=== cell 43 ===
+run_id: 20261112_042326
+1. EXTRACT: sample data -> raw files
+   web: 6 records -> elt\landing\web\web__20261112_042326.json.gz
+   mobile: 2 records -> elt\landing\mobile\mobile__20261112_042326.json.gz
+   crm: 4 records -> elt\landing\crm\crm__20261112_042326.json.gz
+   fx: 1 records -> elt\landing\fx\fx__20261112_042326.json.gz
+2. LOAD: raw files -> bronze tables
+   6 rows -> bronze.orders_raw
+   2 rows -> bronze.orders_raw
+   4 rows -> bronze.customers_raw
+   1 rows -> bronze.fx_raw
+3. TRANSFORM: bronze -> silver -> gold
+   new pincodes to look up: []
+4. CHECK
+   rows gained or lost while enriching    0   OK
+   duplicate orders in gold               0   OK
+   orders with no customer match          0   OK
+   orders with an amount but no FX rate   0   OK
+   orders with no city                    0   OK
+   share of rows rejected                 25%
+GOLD: 4 orders, revenue ₹7785.00, 126 loyalty points
+
+=== cell 45 ===
+                             before    after changed?
+bronze.orders_raw rows            8       16      yes
+silver.orders_checked rows        8       16      yes
+silver.orders_clean rows          6       12      yes
+silver.orders_dedup rows          4        4       no
+quarantine.orders rows            2        2       no
+gold orders                       4        4       no
+gold revenue_inr            7785.00  7785.00       no
+gold loyalty points             126      126       no
+
+=== cell 46 ===
+ORD-1006 in silver.orders_checked (AFTER; rebuilt by the re-run from all bronze rows):
+   INGEST_SEQ SOURCE  ORDER_ID CURRENCY  \
+0           6    web  ORD-1006      EUR   
+1          14    web  ORD-1006      EUR   
+                                             REASONS  
+0  ["bad_email","bad_pincode","unsupported_curren...  
+1  ["bad_email","bad_pincode","unsupported_curren...  
+ORD-1006 in quarantine.orders (AFTER):
+            RUN_ID SOURCE  ORDER_ID                      REASONS
+0  20261112_040919    web  ORD-1006  ["bad_email","bad_pincode"]
+
+=== cell 48 ===
+  CURRENCY  ROWS_IN_ORDERS_CHECKED  FLAGGED_UNSUPPORTED_CURRENCY
+0      EUR                       2                             2
+1      INR                      10                             0
+2      USD                       4                             0
+
+=== cell 50 ===
+copies of each rejected record in silver.orders_checked vs quarantine.orders:
+  SOURCE  ORDER_ID          UPDATED_AT  COPIES_IN_ORDERS_CHECKED  \
+0    web  ORD-1004 2026-09-03 12:00:00                         2   
+1    web  ORD-1006 2026-09-04 08:30:00                         2   
+   ROWS_IN_QUARANTINE  
+0                   1  
+1                   1  
+
+error outputs in whole notebook: 0
+B1 check cell (37) still shows: 16 of 16 checks PASS

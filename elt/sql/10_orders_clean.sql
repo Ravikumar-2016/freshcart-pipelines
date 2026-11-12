@@ -46,6 +46,7 @@ SELECT *,
     IFF(order_id IS NULL, 'missing_order_id', NULL),
     IFF(email IS NULL OR NOT REGEXP_LIKE(email, '^[^@\\s]+@[^@\\s]+\\.[a-z]{2,}$'), 'bad_email', NULL),
     IFF(pincode IS NULL OR NOT REGEXP_LIKE(pincode, '^[1-9][0-9]{5}$'), 'bad_pincode', NULL),
+    IFF(currency IS NULL OR currency NOT IN ('INR', 'USD'), 'unsupported_currency', NULL),   -- B3: only INR and USD are accepted
     IFF(order_date IS NULL, 'unparseable_date', NULL),
     IFF(updated_at IS NULL, 'unparseable_updated_at', NULL),
     IFF(amount <= 0, 'non_positive_amount', NULL)          -- NULL amount is allowed (flagged below)

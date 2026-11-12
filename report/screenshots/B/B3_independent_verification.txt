@@ -1,0 +1,18 @@
+B3 independent verification (fresh connection, queried directly from Snowflake)
+checked at (UTC): 2026-11-12 04:24:05
+Connected: role=ACCOUNTADMIN warehouse=FRESHCART_WH database=FRESHCART_DB
+
+ORD-1006 reasons AFTER, silver.orders_checked (full arrays):
+   (6, 'web', 'EUR', '["bad_email","bad_pincode","unsupported_currency"]')
+   (14, 'web', 'EUR', '["bad_email","bad_pincode","unsupported_currency"]')
+
+ORD-1006 in quarantine.orders (rows, run_id, quarantined_at, reasons):
+   ('20261112_040919', datetime.datetime(2026, 11, 11, 20, 9, 23, 796000, tzinfo=<DstTzInfo 'America/Los_Angeles' PST-1 day, 16:00:00 STD>), '["bad_email","bad_pincode"]')
+
+quarantine.orders overall: [('ORD-1004', 1), ('ORD-1006', 1)]
+distinct run_ids in bronze.orders_raw: 2
+rows whose reasons contain unsupported_currency, by order: [('ORD-1006', 'EUR', 2)]
+orders rejected for ONLY unsupported_currency (would be new quarantine candidates): 0
+
+gold after: (4, Decimal('7785.00'), 126) | silver.orders_dedup: 4
+ORD-1006 in gold / dedup: 0 / 0

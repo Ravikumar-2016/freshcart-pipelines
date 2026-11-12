@@ -91,6 +91,40 @@ Evidence: `screenshots/B/B2_evidence.txt` (queries run after the single B1 run).
 
 **ORD-1005 vs ORD-1001 (Priya).** The tier is looked up *on the order date*. The table `dim.customers_scd2` holds Priya's history: Silver from 2023-04-10 to 2026-09-02, Gold from 2026-09-03. In SQL_40 the join is `LEFT JOIN dim.customers_scd2 c ON c.email = o.email AND o.order_date BETWEEN c.valid_from AND c.valid_to`, followed by `LEFT JOIN ref.tier_multiplier m ON m.tier = c.tier`. ORD-1001 is dated 2026-09-01 (Silver, ×1: FLOOR(1250/100) × 1 = 12 points); ORD-1005 is dated 2026-09-03 (Gold, ×2: FLOOR(899/100) × 2 = 8 × 2 = 16 points).
 ### B3
+**Change** (`elt/sql/10_orders_clean.sql`, line 49, inside `ARRAY_CONSTRUCT_COMPACT(...)`, one line added):
+```sql
+IFF(currency IS NULL OR currency NOT IN ('INR', 'USD'), 'unsupported_currency', NULL),   -- B3: only INR and USD are accepted
+```
+(`currency` is already upper-cased in the `typed` CTE, so `usd`/`inr` still pass; a missing currency is also flagged.)
+Re-run: full `fc.run_pipeline()` on 2026-11-12 (run_id `20261112_042326`), after the B1 run (`20261112_040919`).
+Evidence (`report/screenshots/B/`): `B3_notebook_section.png` (rendered notebook section), `B3_notebook_outputs.txt`, `B3_independent_verification.txt` (full arrays from a fresh connection). Notebook: section "B3" in `elt/freshcart_elt.ipynb`.
+
+**ORD-1006 reasons (currency EUR):**
+| | `silver.orders_checked` | `quarantine.orders` |
+|---|---|---|
+| Before the change (B1 run) | `["bad_email","bad_pincode"]` | `["bad_email","bad_pincode"]` |
+| After the change + re-run | `["bad_email","bad_pincode","unsupported_currency"]` (both copies, ingest_seq 6 and 14) | still `["bad_email","bad_pincode"]` (run_id 20261112_040919, 1 row) |
+
+Actual effects (before -> after): gold orders 4 -> 4, gold revenue 7785.00 -> 7785.00, loyalty points 126 -> 126, `silver.orders_dedup` 4 -> 4,
+`quarantine.orders` 2 -> 2. Only the raw/checked/clean counts grew (bronze 8 -> 16, `orders_checked` 8 -> 16, `orders_clean` 6 -> 12) because every run
+appends another copy of each raw order to bronze and `orders_clean` holds all copies until `orders_dedup` keeps one per order.
+The rule flags only EUR rows (2 of 16 rows in `orders_checked`, both ORD-1006); INR (10) and USD (4) rows are not flagged. No order is rejected for
+`unsupported_currency` alone (0 rows).
+
+> DRAFT explanations written by the assistant from the real results: rewrite in your own words before submitting.
+
+**Does the gold total change? No** (4 orders, ₹7,785.00, 126 points before and after). ORD-1006 (EUR) was already rejected by `bad_email` and
+`bad_pincode`, so it never reached `silver.orders_clean`, `silver.orders_dedup` or gold. The new rule only adds a third reason to a row that was
+already quarantined; gold would change only if the rule rejected a row that used to pass, and in this data every INR/USD order (including ORD-1005 with
+`inr`) still passes.
+
+**Does the new run add a second quarantine row for ORD-1006? No.** After the re-run `quarantine.orders` still has exactly one row for ORD-1006 (and one for ORD-1004),
+although `silver.orders_checked` now has two copies of each (one per run). The part of the SQL that decides this is the insert into quarantine in
+`10_orders_clean.sql`: `AND NOT EXISTS (SELECT 1 FROM quarantine.orders q WHERE q.source = c.source AND EQUAL_NULL(q.order_id, c.order_id) AND EQUAL_NULL(q.row_data:UPDATED_AT::TIMESTAMP_NTZ, c.updated_at))`
+(lines 68-72). A rejected row is skipped when quarantine already has the same source, order_id and updated_at. The `QUALIFY ROW_NUMBER() OVER (PARTITION BY c.source, c.order_id, c.updated_at ORDER BY c.ingest_seq DESC) = 1`
+(line 73) also keeps only one copy of a record inside a single run. Because the test ignores the reasons, the older quarantine row keeps its old reasons;
+the new reason shows only in `silver.orders_checked`.
+
 ### B4
 ### B5
 
