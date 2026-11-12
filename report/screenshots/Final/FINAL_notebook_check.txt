@@ -1,0 +1,64 @@
+FINAL NOTEBOOK CHECK (elt/freshcart_elt.ipynb, executed once top to bottom in database FRESHCART_FINAL)
+code cells: 41 | with outputs: 41 | error outputs: 0
+execution counts strictly 1..N in order: True
+
+B1:
+16 of 16 checks PASS
+  PASS  B1 16/16 PASS
+  PASS  B1 last line 4 orders, 7785.00, 126 points
+  PASS  B1 sixth check present and OK
+B3:
+                             before    after changed?
+bronze.orders_raw rows            8       16      yes
+silver.orders_checked rows        8       16      yes
+silver.orders_clean rows          6       12      yes
+silver.orders_dedup rows          4        4       no
+quarantine.orders rows            2        2       no
+gold orders                       4        4       no
+gold revenue_inr            7785.00  7785.00       no
+gold loyalty points             126      126       no
+  PASS  ORD-1006 has unsupported_currency after
+B4:
+5 of 5 predictions match; rows with changed row_hash: 1
+  PASS  B4 5 of 5 predictions match
+  PASS  B4 second pass: 0 published_at changes
+  PASS  B4 totals 4 / 7785.00 / 161
+B5:
+  PASS  B5 PROBLEM line printed
+  PASS  B5 19 of 19 cleanup checks PASS
+Section 11 (run it again):
+ crm: 5 records -> elt\landing\crm\crm__20261112_054256.json.gz
+   fx: 1 records -> elt\landing\fx\fx__20261112_054256.json.gz
+2. LOAD: raw files -> bronze tables
+
+   6 rows -> bronze.orders_raw
+
+   2 rows -> bronze.orders_raw
+
+   5 rows -> bronze.customers_raw
+
+   1 rows -> bronze.fx_raw
+3. TRANSFORM: bronze -> silver -> gold
+
+   new pincodes to look up: []
+
+4. CHECK
+
+   rows gained or lost while enriching    0   OK
+   duplicate orders in gold               0   OK
+
+   orders with no customer match          0   OK
+
+   orders with an amount but no FX rate   0   OK
+
+   orders with no city                    0   OK
+
+   orders dated in the future             0   OK
+   share of rows rejected                 25%
+
+GOLD: 4 orders, revenue ₹7785.00, 161 loyalty points
+
+   BRONZE_ROWS  QUARANTINE_ROWS  GOLD_ORDERS REVENUE_INR  POINTS
+0           32                2            4     7785.00     161
+  PASS  section 11 executed with 4 / 7785.00 / 161 and six checks OK
+  PASS  section 12 (clean-up cell, DROP lines commented) executed

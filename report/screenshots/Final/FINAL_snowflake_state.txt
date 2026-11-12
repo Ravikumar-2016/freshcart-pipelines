@@ -1,0 +1,5 @@
+Final Snowflake state check 2026-11-12 05:43:40 UTC
+Connected: role=ACCOUNTADMIN warehouse=FRESHCART_WH database=FRESHCART_DB
+FRESHCART_DB     {'bronze.orders_raw': 24, 'bronze.customers_raw': 13, 'silver.orders_dedup': 4, 'quarantine.orders': 2, 'gold.fct_orders': 4} gold: (4, Decimal('7785.00'), 161)
+FRESHCART_FINAL  {'bronze.orders_raw': 32, 'bronze.customers_raw': 18, 'silver.orders_dedup': 4, 'quarantine.orders': 2, 'gold.fct_orders': 4} gold: (4, Decimal('7785.00'), 161)
+FRESHCART_DB equals its pre-final-run baseline (bronze 24 / customers 13 / dedup 4 / quarantine 2 / gold 4, 7785.00, 161): True

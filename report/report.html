@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>From Git to Gold: report</title>
+<style>
+@page { size: A4; margin: 15mm 14mm; }
+body { font: 9.4pt/1.32 "Segoe UI", Arial, sans-serif; color: #111; }
+h1 { font-size: 16pt; margin: 0 0 2mm; } h2 { font-size: 12pt; margin: 4mm 0 1.5mm; border-bottom: 1px solid #888; }
+h3 { font-size: 10pt; margin: 2.5mm 0 1mm; } p { margin: 0 0 1.6mm; } ul { margin: 0 0 1.6mm 4mm; padding-left: 3mm; }
+table { border-collapse: collapse; margin: 1mm 0 2mm; width: 100%; } td, th { border: 1px solid #999; padding: 0.7mm 1.6mm; vertical-align: top; font-size: 8.6pt; }
+th { background: #eee; } pre { font: 7.6pt/1.2 Consolas, monospace; background: #f4f4f4; padding: 1.5mm; margin: 0 0 2mm; white-space: pre-wrap; }
+code { font: 8.4pt Consolas, monospace; } .meta { font-size: 9pt; color: #333; } .pb { break-before: page; }
+.appx img { width: 100%; border: 1px solid #aaa; margin: 1mm 0 3mm; } .appx h3 { break-after: avoid; } svg text { font-family: "Segoe UI", Arial; }
+</style></head><body>
+
+<h1>From Git to Gold: Pipeline Orchestration</h1>
+<p class="meta">Name: {{NAME}} &nbsp;|&nbsp; Roll no: {{ROLL}} &nbsp;|&nbsp; B.Tech, Computer Science and Engineering &nbsp;|&nbsp; Course: Data Engineering<br>Repository: https://github.com/Ravikumar-2016/freshcart-pipelines (private repository)<br>
+Environment: Windows, VS Code, Python 3.12.6, Snowflake, GitHub Actions, Mage AI 0.9.80, CloudAMQP (RabbitMQ). Evidence files are in <code>report/screenshots/</code>; screenshots are in the appendix.</p>
+
+<h2>Integration diagram</h2>
+<svg viewBox="0 0 760 330" width="100%" xmlns="http://www.w3.org/2000/svg" style="border:1px solid #bbb">
+ <defs><marker id="a" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8z" fill="#333"/></marker></defs>
+ <g font-size="11" fill="#111" stroke="#333" stroke-width="1">
+  <rect x="8" y="12" width="150" height="46" rx="5" fill="#e8f0fe"/><text x="18" y="30" stroke="none">Laptop (VS Code)</text><text x="18" y="46" stroke="none" font-size="9.5">working folder, git add/commit</text>
+  <rect x="200" y="12" width="150" height="46" rx="5" fill="#e8f0fe"/><text x="210" y="30" stroke="none">GitHub (remote)</text><text x="210" y="46" stroke="none" font-size="9.5">git push</text>
+  <rect x="392" y="12" width="170" height="46" rx="5" fill="#e6f4ea"/><text x="402" y="30" stroke="none">GitHub Actions CI</text><text x="402" y="46" stroke="none" font-size="9.5">pytest on every push (Python 3.12)</text>
+  <rect x="8" y="100" width="215" height="92" rx="5" fill="#fff4e0"/><text x="18" y="118" stroke="none">ML pipeline (Mage, iris_project/)</text>
+  <text x="18" y="134" stroke="none" font-size="9.5">Iris data -&gt; validate -&gt; prepare_data</text><text x="18" y="148" stroke="none" font-size="9.5">-&gt; train_model [@test gate] -&gt; save_results</text><text x="18" y="162" stroke="none" font-size="9.5">                      \-&gt; evaluate_model</text><text x="18" y="180" stroke="none" font-size="9.5">test in CI: prepare_data 120/30 split</text>
+  <rect x="262" y="100" width="300" height="92" rx="5" fill="#fce8e6"/><text x="272" y="118" stroke="none">ELT pipeline (Snowflake FRESHCART_DB)</text>
+  <text x="272" y="134" stroke="none" font-size="9.5">mock APIs -&gt; write_landing (.json.gz) -&gt; load_file (PUT, COPY)</text><text x="272" y="148" stroke="none" font-size="9.5">-&gt; BRONZE -&gt; SILVER (clean, dedup) + QUARANTINE</text><text x="272" y="162" stroke="none" font-size="9.5">-&gt; DIM (SCD2), REF -&gt; GOLD fct_orders (MERGE, row_hash)</text><text x="272" y="180" stroke="none" font-size="9.5">-&gt; quality_checks() (six counts that must be 0)</text>
+  <rect x="8" y="238" width="250" height="78" rx="5" fill="#f3e8fd"/><text x="18" y="256" stroke="none">Stream: dispatcher -&gt; topic exchange</text><text x="18" y="270" stroke="none" font-size="9.5">rapido-dispatch (key city.zone.type)</text><text x="18" y="284" stroke="none" font-size="9.5">-&gt; private driver queues (ACK / NACK)</text><text x="18" y="300" stroke="none" font-size="9.5">CloudAMQP, Mumbai</text>
+  <rect x="300" y="238" width="262" height="78" rx="5" fill="#f3e8fd"/><text x="310" y="256" stroke="none">Bonus: order_consumer.py (60 s window)</text><text x="310" y="270" stroke="none" font-size="9.5">key freshcart.order.web -&gt; write_landing</text><text x="310" y="284" stroke="none" font-size="9.5">-&gt; load_file -&gt; same SQL -&gt; gold (idempotent)</text>
+ </g>
+ <g stroke="#333" stroke-width="1.4" fill="none" marker-end="url(#a)">
+  <path d="M158,35 L200,35"/><path d="M350,35 L392,35"/><path d="M83,58 L83,100" stroke-dasharray="4 3"/><path d="M476,58 C476,80 400,80 330,100" stroke-dasharray="4 3"/>
+  <path d="M430,238 L430,192"/><path d="M258,277 L300,277"/>
+ </g>
+ <text x="90" y="82" font-size="9" fill="#333">code (iris_project/, elt/, stream/) is versioned and tested by CI</text>
+</svg>
+<p class="meta">Code lives in Git; CI tests the Mage <code>prepare_data</code> block on every push. The ELT pipeline produces the gold table. The Mage pipeline trains on the Iris dataset from scikit-learn (it does not read the gold table). The stream delivers requests to drivers (Part D); the bonus consumer feeds order events from the same broker into bronze and so into gold.</p>
+
+<h2>Part A: Git and CI/CD</h2>
+<h3>A1 Repository and commit history</h3>
+<p>Structure as required: <code>README.md, .gitignore</code> (ignores <code>.env, *.pkl, *.csv, mage.log, __pycache__/</code> and <code>.venv/</code>), <code>requirements.txt, elt/, iris_project/, stream/, tests/test_prepare_data.py, .github/workflows/ci.yml</code>. <code>git log --oneline</code>:</p>
+<pre>{{GITLOG}}</pre>
+<h3>A2 Where does each command act?</h3>
+<table><tr><th>Command</th><th>Where the change happens</th><th>What exactly happens?</th></tr>
+<tr><td><code>git init</code></td><td>working folder / local repository</td><td>Creates the hidden <code>.git</code> folder, making the folder an empty local repository.</td></tr>
+<tr><td><code>git add train.py</code></td><td>working folder -&gt; staging area</td><td>Marks the current content of <code>train.py</code> to be part of the next commit.</td></tr>
+<tr><td><code>git commit -m "msg"</code></td><td>staging area -&gt; local repository</td><td>Saves the staged snapshot as a commit with the message "msg", only on my laptop.</td></tr>
+<tr><td><code>git remote add origin URL</code></td><td>local repository (settings only)</td><td>Stores the short name <code>origin</code> for the GitHub URL; nothing is transferred.</td></tr>
+<tr><td><code>git push -u origin main</code></td><td>local repository -&gt; remote (GitHub)</td><td>Uploads my local <code>main</code> commits and links it to <code>origin/main</code> so a later plain <code>git push</code> works.</td></tr>
+<tr><td><code>git pull origin main</code></td><td>remote -&gt; local repository and working folder</td><td>Downloads new commits from <code>origin/main</code> and merges them into my branch and files.</td></tr></table>
+<p><b>After <code>git commit</code>, can a teammate see the code on GitHub? No.</b> A commit exists only in my local repository; GitHub receives it only after <code>git push</code>.</p>
+<h3>A3 CI workflow</h3>
+<p><code>tests/test_prepare_data.py</code> asserts 120 train and 30 test rows from <code>prepare_data.transform</code> (<code>train_test_split(test_size=0.2, random_state=42)</code>). <code>.github/workflows/ci.yml</code> runs on every push: checkout, Python 3.12, <code>pip install -r requirements.txt</code>, <code>python -m pytest</code>. Runs: CI #1 green (<code>6d86300</code>); CI #2 red with <code>test_size=0.3</code> (<code>b038cf1</code>; locally <code>105 == 120</code> failed); fix <code>0c83c3e</code> gave CI #3 green. Screenshots: appendix A3.</p>
+
+<h2>Part B: FreshCart ELT on Snowflake</h2>
+<p>Notebook <code>elt/freshcart_elt.ipynb</code>; SQL in <code>elt/sql/</code>; code in <code>elt/freshcart.py</code>; mock data in <code>elt/mock_data.py</code> (the course sample data; no real APIs). Database <code>FRESHCART_DB</code>; the final notebook was executed once, top to bottom, in <code>FRESHCART_FINAL</code>.</p>
+<h3>B1 Baseline (one run on an empty database)</h3>
+<table><tr><th>Check</th><th>Expected</th><th>Actual</th></tr>
+<tr><td>Raw order rows in bronze</td><td>8 (6 web + 2 mobile)</td><td>8</td></tr><tr><td>Rows passing cleaning</td><td>6</td><td>6</td></tr>
+<tr><td>Quarantine</td><td>2 (ORD-1004, ORD-1006)</td><td>2 (same orders)</td></tr><tr><td>After deduplication</td><td>4</td><td>4</td></tr>
+<tr><td>Gold line</td><td>4 orders, 7,785.00, 126 points</td><td>4 orders, 7785.00, 126 points</td></tr><tr><td>Rows rejected</td><td>25%</td><td>25%</td></tr></table>
+<h3>B2 Trace of ORD-1003 and ORD-1005</h3>
+<p><b>ORD-1003.</b> (1) In <code>bronze.orders_raw</code> the web copy (ingest_seq 2) is flat JSON with <code>order_id, cust_email, amount: null, updated_at 09:10</code>; the mobile copy (ingest_seq 8) is nested camelCase JSON with <code>orderId, customer.email, total.value "2,100.00", updatedAt 18:40</code>. They differ because they come from two different APIs; bronze keeps each as received. (2) In <code>10_orders_clean.sql</code> the <code>unified</code> CTE maps both shapes to the same columns, and the <code>typed</code> CTE applies <code>LOWER(TRIM(email))</code>, <code>INITCAP</code> for the name, <code>COALESCE(TRY_TO_DATE(..'YYYY-MM-DD'), ..'DD/MM/YYYY', ..'MON DD, YYYY')</code> (the mobile <code>02/09/2026</code> becomes 2026-09-02), <code>TRY_TO_DECIMAL(REGEXP_REPLACE(amount,'[^0-9.-]',''),12,2)</code> (<code>"2,100.00"</code> becomes 2100.00) and <code>TRY_TO_TIMESTAMP_NTZ</code>. (3) <code>20_orders_dedup.sql</code>: <code>QUALIFY ROW_NUMBER() OVER (PARTITION BY order_id ORDER BY updated_at DESC, ingest_seq DESC) = 1</code> ranks copies newest first, so the mobile copy (18:40, later than 09:10) survives with amount 2100.00. (4) Gold: INR rate 1.0, <code>amount_inr = ROUND(2100.00 x 1.0, 2) = 2100.00</code>; Meera is Platinum (multiplier 3), <code>loyalty_points = FLOOR(2100.00/100) x 3 = 21 x 3 = 63</code>.<br>
+<b>ORD-1005 vs ORD-1001 (Priya).</b> The tier is taken on the order date: <code>LEFT JOIN dim.customers_scd2 c ON c.email = o.email AND o.order_date BETWEEN c.valid_from AND c.valid_to</code>, then <code>ref.tier_multiplier</code>. Priya is Silver until 2026-09-02 and Gold from 2026-09-03. ORD-1001 (09-01): Silver x1, FLOOR(1250/100) = 12 points. ORD-1005 (09-03): Gold x2, FLOOR(899/100) x 2 = 16 points.</p>
+<h3>B3 Rule <code>unsupported_currency</code></h3>
+<p>Added in <code>10_orders_clean.sql</code> inside <code>ARRAY_CONSTRUCT_COMPACT</code>: <code>IFF(currency IS NULL OR currency NOT IN ('INR','USD'), 'unsupported_currency', NULL)</code>. ORD-1006 (EUR) reasons before: <code>["bad_email","bad_pincode"]</code>; after the re-run (in <code>silver.orders_checked</code>): <code>["bad_email","bad_pincode","unsupported_currency"]</code>. <b>Gold does not change</b> (4 / 7,785.00 / 126): ORD-1006 was already rejected, so it never reached gold. <b>No second quarantine row</b>: the <code>NOT EXISTS (... same source, order_id and updated_at ...)</code> in the quarantine insert skips a record already there (and ignores the reasons, so the old row keeps the old reasons); <code>QUALIFY ROW_NUMBER()</code> removes copies within one run.</p>
+<h3>B4 CUST-02 becomes Gold on 2026-08-15</h3>
+<p>Predictions were written and committed (<code>72e290d</code>) before the run; the actuals match all five.</p>
+<table><tr><th>Quantity</th><th>Prediction</th><th>Actual</th></tr><tr><td>CUST-02 rows in <code>dim.customers_scd2</code></td><td>2</td><td>2 (Silver to 2026-08-14, Gold from 2026-08-15)</td></tr>
+<tr><td>Tier used for ORD-1002</td><td>Gold</td><td>Gold</td></tr><tr><td>Loyalty points for ORD-1002</td><td>70</td><td>70 (FLOOR(3536/100) x 2)</td></tr>
+<tr><td>Total points in gold</td><td>161</td><td>161</td></tr><tr><td>Gold rows whose <code>published_at</code> changed</td><td>1</td><td>1 (ORD-1002 only)</td></tr></table>
+<p>A second pass of the transformation changed no <code>published_at</code> and no <code>row_hash</code>. <b>Why gold is safe to re-run:</b> each run rebuilds <code>silver.orders_enriched</code> and <code>MERGE</code>s it into gold on <code>order_id</code>. The <code>row_hash</code> is a hash of all business columns; the MERGE updates a row (and refreshes <code>published_at</code>) only when the hash differs, and inserts only new orders, so a re-run never creates a duplicate and never touches an unchanged row. <b>Bronze still grows by 8 rows</b> per run because every run extracts the same 8 raw orders again into new landing files and <code>COPY INTO</code> appends them; bronze is an append-only record, and the duplicates are removed later in silver.</p>
+<h3>B5 Sixth check and ELT vs ETL</h3>
+<p>Added to <code>quality_checks()</code>: <code>SELECT COUNT_IF(order_date &gt; CURRENT_DATE()) FROM silver.orders_dedup</code> ("orders dated in the future"; 0 on real data). Failing on purpose with the marked order <code>TEST-B5-FUTURE-DATE-001</code> (date 2026-12-31, no amount so that no other check fires) printed <code>orders dated in the future   1   PROBLEM</code>. Cleanup first counted the exact markers and asserted them (bronze 1, gold 1, quarantine 0, staged file 1, other rows untouched), then deleted exactly those; the transform was re-run, the check returned to <code>0 OK</code>, and the state was identical to the baseline taken before (19 of 19 checks).<br>
+<b>ELT vs ETL.</b> FreshCart's sources send messy data in different shapes (flat web JSON, nested mobile JSON, duplicates, bad emails), so it is better to land everything unchanged in bronze and clean it with SQL inside Snowflake: a raw copy is kept, a changed rule or late fix is just a re-run of the SQL (B3 and B4 needed no re-extraction), bad rows go to quarantine with reasons instead of being lost, and the warehouse does the heavy work. ETL would still win when data must be changed before it may land in the warehouse, for example masking personal or card data for compliance. <b>[STUDENT INPUT NEEDED: the assignment asks for the ETL situation from the lecture; the lecture material was not available, so the example above is a general one, not necessarily the lecture's.]</b></p>
+
+<h2>Part C: ML pipeline with Mage</h2>
+<h3>C1 Graph and run</h3>
+<pre>load_iris (data_loader, @test: 150 rows, target)
+  -> validate_data (transformer, C4, @test x2: no missing values, 3 classes)
+  -> prepare_data (transformer, @test: split column)
+  -> train_model (transformer, @test: accuracy &gt;= 0.90, 30 test rows)
+       |-> save_results (data_exporter, @test: CSV with 30 rows)
+       '-> evaluate_model (transformer, C3, @test: 3 classes, support 30)</pre>
+<p><code>mage run iris_project iris_classifier --test</code>: every block printed <code>1/1 tests passed</code>, accuracy 1.0 at the default depth 3, <code>iris_predictions.csv</code> written, exit 0 (<code>report/screenshots/C/C1_mage_run_test.txt</code>).</p>
+<h3>C2 Tests as a gate</h3>
+<p>Each run used <code>--runtime-vars '{"max_depth": N}'</code> after deleting the CSV. The accuracy gate (0.90) is my own choice, because the reference notebook was not available.</p>
+<table><tr><th>max_depth</th><th>Test accuracy</th><th>test_accuracy passed?</th><th>CSV created?</th></tr><tr><td>1</td><td>0.6333</td><td>No (exit 1)</td><td>No</td></tr><tr><td>2</td><td>0.9667</td><td>Yes</td><td>Yes</td></tr><tr><td>3</td><td>1.0000</td><td>Yes</td><td>Yes</td></tr><tr><td>4</td><td>1.0000</td><td>Yes</td><td>Yes</td></tr><tr><td>5</td><td>1.0000</td><td>Yes</td><td>Yes</td></tr></table>
+<p><b>How a failing <code>@test</code> stops <code>save_results</code>:</b> with <code>--test</code> Mage runs a block's tests right after the block; a failed assertion marks the block failed and stops the run (exit code 1), so the blocks that depend on <code>train_model</code> are never started (at depth 1 the log has no "Saved" line). This is better than saving first and checking later because a bad model's file never exists to be picked up, and the failure is visible immediately.</p>
+<h3>C3 Evaluation branch</h3>
+<p><code>train_model</code> has two downstream blocks, <code>save_results</code> and <code>evaluate_model</code> (<code>iris_project/pipelines/iris_classifier/metadata.yaml</code>). Depth 2, confusion matrix (rows actual, columns predicted): setosa [10, 0, 0]; versicolor [0, 8, 1]; virginica [0, 0, 11]. Metrics: setosa precision/recall 1.0/1.0; versicolor 1.0/0.8889; virginica 0.9167/1.0; accuracy 0.9667. The UI screenshot (appendix) is from <code>http://localhost:6789</code>. <b>Limitation:</b> no Cloudflare tunnel was used (Mage runs on my own machine, so the UI is reachable directly); I have not claimed that this satisfies the tunnel requirement.</p>
+<h3>C4 Own block</h3>
+<p><code>validate_data</code> (transformer between <code>load_iris</code> and <code>prepare_data</code>) with two <code>@test</code> functions (no missing values, exactly 3 classes); the full six-block run passed, and run directly the tests fail on a NaN and on a 2-class frame.</p>
+
+<h2>Part D: Food-order stream with RabbitMQ</h2>
+<h3>D1 Routing</h3>
+<p>Exchange <code>rapido-dispatch</code> (topic); <code>*</code> matches exactly one word, <code>#</code> matches zero or more words. Bindings: Ravi <code>bangalore.koramangala.*</code>, Priya <code>bangalore.indiranagar.*</code>, Arjun <code>bangalore.*.ride</code>, Meena <code>bangalore.*.food</code>, Karthik <code>chennai.tnagar.food</code>, Control <code>bangalore.#</code>. Predictions were written on paper before any message was published; verified on the live broker (<code>stream/verify_routing.py</code>, 6 of 6 PASS):</p>
+<table><tr><th>#</th><th>Routing key</th><th>Receiving queues (predicted = actual)</th></tr>
+<tr><td>1</td><td>bangalore.koramangala.food</td><td>Ravi, Meena, Control</td></tr><tr><td>2</td><td>bangalore.indiranagar.ride</td><td>Priya, Arjun, Control</td></tr><tr><td>3</td><td>bangalore.whitefield.ride</td><td>Arjun, Control</td></tr>
+<tr><td>4</td><td>chennai.tnagar.food</td><td>Karthik</td></tr><tr><td>5</td><td>chennai.whitefield.ride</td><td>dropped</td></tr><tr><td>6</td><td>bangalore.koramangala</td><td>Control only</td></tr></table>
+<p><b>Question 6.</b> The key has only two words. Every other pattern needs three words, because each contains a <code>*</code> (or is a three-word literal) and a <code>*</code> must match exactly one word, which the key does not have. Only <code>bangalore.#</code> can match: <code>bangalore</code> matches the first word and <code>#</code> matches the remaining word (it would even match zero words).</p>
+<h3>D2 Dispatcher and drivers</h3>
+<p><code>stream/dispatcher.py</code> publishes every 2 s a persistent JSON message <code>{id, city, zone, type, ts}</code> with key <code>city.zone.type</code>; <code>stream/driver.py NAME PATTERN</code> declares a private exclusive queue, binds it and acknowledges each processed message. Six drivers plus the dispatcher ran as separate processes for 120 s of publishing (05:23:50 to 05:26:00 UTC): 59 messages. A log checker compared every message with the routing model: each reached exactly the predicted drivers and no others (Ravi 13, Priya 7, Arjun 17, Meena 15, Karthik 2, Control 32, all ACKed; 25 matched no queue and were dropped). Evidence: <code>report/screenshots/D/D2_*</code> (log files).</p>
+<h3>D3 ACK and NACK</h3>
+<p>A message without <code>zone</code> gets <code>basic_nack(requeue=False)</code>, any other <code>basic_ack</code>; the dispatcher makes every 10th message malformed. Live run (35 messages, 3 malformed): the matching drivers printed <code>REJECTED ... missing field 'zone' -&gt; NACK (requeue=False, discarded)</code> and ACKed all valid messages. Scripted demo (<code>stream/d3_demo.py</code>, queue depth read from the broker): valid ACK 1 to 0; malformed NACK 1 to 0; a consumer that closed its channel without ACK left depth 1 and the next delivery had <code>redelivered=True</code>; a malformed message with <code>requeue=True</code> came back on 4 of 4 attempts. No dead-letter exchange is configured, so a rejected message is simply deleted.<br>
+<b>Crash before ACK:</b> the message stays unacknowledged, so RabbitMQ redelivers it when the connection closes (at-least-once delivery). <b>Always-bad message with <code>requeue=True</code>:</b> it returns to the queue, fails again, and loops forever (a poison message), wasting CPU and blocking the messages behind it.</p>
+
+<h2>Bonus: stream into the lakehouse</h2>
+<p><b>Flow.</b> <code>stream/order_consumer.py</code> collects FreshCart web-format order messages (key <code>freshcart.order.web</code> on the same exchange) for 60 s; invalid ones are NACKed (requeue=False); the rest go through the existing <code>write_landing()</code> (raw .json.gz), <code>load_file()</code> (PUT + COPY INTO bronze) and the unchanged transform SQL to <code>gold.fct_orders</code>. Messages are ACKed only after the landing file is loaded; on failure they are requeued. Three marked orders <code>BONUS-TEST-001..003</code> (plus a duplicate and one malformed message) were streamed twice:</p>
+<table><tr><th></th><th>Baseline</th><th>After run 1</th><th>After run 2</th></tr><tr><td>Gold orders</td><td>4</td><td>7</td><td>7</td></tr><tr><td>Gold revenue (INR)</td><td>7,785.00</td><td>9,535.00</td><td>9,535.00</td></tr><tr><td>Gold points</td><td>161</td><td>205</td><td>205</td></tr><tr><td>bronze order rows</td><td>24</td><td>28</td><td>32</td></tr></table>
+<p>Run 2 did not double-count: bronze appended again, but silver deduplication (<code>QUALIFY ROW_NUMBER</code>) and the gold MERGE on <code>row_hash</code> left orders, revenue, points and every <code>published_at</code> unchanged. The test data was then removed after asserting exact marker counts, and the final state equals the baseline (<code>report/screenshots/Bonus/</code>).</p>
+
+<h2>Reflection</h2>
+<p>The thing that broke was my B4 analysis cell: after the pipeline had already run once on the new CRM event, the cell failed with <code>KeyError: 'order_id'</code>. I found the cause by printing the data frame's columns: Snowflake returns column names in upper case (<code>ORDER_ID</code>) while my code used lower case. Re-running the pipeline would have added another 8 rows to bronze and spoiled the "before" comparison, so I did not. Instead I used Snowflake Time Travel to read the tables as they were just before the run, first proving that this reproduced the "before" snapshot I had saved, and fixed the column names. Later, while preparing the final submission, I noticed that the notebook still depended on that one-off timeline (a hard-coded Time Travel time and the B4 event already in the sample data), so a clean top-to-bottom run would not reproduce B1's numbers. I fixed it by keeping the event separate until section B4, removing the hard-coded time, and running the whole notebook once in a fresh database. The lesson: save a "before" snapshot first, and make a notebook re-runnable from the start.</p>
+
+<div id="appendix" class="pb appx"><h2>Appendix: screenshots and evidence</h2>
+<h3>A3: CI runs (green, red, green again)</h3><img src="screenshots/A/A3_green.png"><img src="screenshots/A/A3_red.png"><img src="screenshots/A/A3_final_green.png">
+<h3>B1: baseline run (rendered notebook outputs)</h3><img src="screenshots/B/B1_notebook_part2.png"><img src="screenshots/B/B1_notebook_part3.png">
+<h3>B3: before / after the currency rule</h3><img src="screenshots/B/B3_notebook_section.png">
+<h3>B4: five outcomes, idempotence, bronze growth</h3><img src="screenshots/B/B4_notebook_part1.png"><img src="screenshots/B/B4_notebook_part2.png">
+<h3>B5: PROBLEM output, cleanup and recovery</h3><img src="screenshots/B/B5_notebook_part1.png"><img src="screenshots/B/B5_notebook_part2.png">
+<h3>C3: Mage UI showing the evaluation branch</h3><img src="screenshots/C/C3_mage_ui_pipeline_graph.png">
+<p class="meta">Text evidence (not reproduced here): <code>report/screenshots/C/</code> (Mage runs), <code>D/</code> (routing, driver and dispatcher logs, ACK/NACK), <code>Bonus/</code>, <code>Final/</code> (final notebook run, FINAL_notebook.html).</p></div>
+</body></html>

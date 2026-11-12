@@ -53,9 +53,11 @@ MOCK_CRM_TIER_EVENTS = [
     {"cust_id": "CUST-01", "email": "priya.r@gmail.com", "tier": "Gold", "effective_from": "2026-09-03"},
     {"cust_id": "CUST-02", "email": "arjun.k@yahoo.in", "tier": "Silver", "effective_from": "2024-01-15"},
     {"cust_id": "CUST-03", "email": "meera@outlook.com", "tier": "Platinum", "effective_from": "2022-11-01"},
-    # B4: Arjun moves to Gold earlier than ORD-1002's order date (2026-09-01)
-    {"cust_id": "CUST-02", "email": "arjun.k@yahoo.in", "tier": "Gold", "effective_from": "2026-08-15"},
 ]
+
+# B4: Arjun moves to Gold earlier than ORD-1002's order date (2026-09-01). The notebook adds this event to
+# MOCK_CRM_TIER_EVENTS in section B4, so that B1 and B3 run on the original four events.
+B4_NEW_EVENT = {"cust_id": "CUST-02", "email": "arjun.k@yahoo.in", "tier": "Gold", "effective_from": "2026-08-15"}
 
 # ---- Exchange rates: rupees per 1 US dollar, per day ----
 MOCK_FX_RESPONSES = [

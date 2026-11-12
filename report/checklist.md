@@ -29,7 +29,7 @@ Status: [ ] not started, [~] in progress, [x] done WITH evidence (cite it).
 - [ ] `.env` filled in by student and `python elt\test_connection.py` run successfully (NOT done: no evidence yet)
 - [x] Database name/schemas: FRESHCART_DB used; DIM and REF schemas added in elt/sql/00_setup.sql and created (setup ran OK, 9 tables exist)
 - [x] Structure: SQL in elt/sql/*.sql, Python in elt/freshcart.py + elt/mock_data.py (mock data from reference notebook, labelled), notebook elt/freshcart_elt.ipynb; `pytest.ini` added so CI only collects tests/ (elt/test_connection.py imports snowflake)
-- [ ] Notebook: B1, B3, B4 and B5 sections executed; the final 'run it again' (section 11) and clean-up (section 12) cells are intentionally NOT executed yet; the final complete notebook run is planned after B5 and the other parts (the B1 cells' stored outputs predate the sixth check, so a final full run must start from a fresh database). Snowflake state now: 3 runs in bronze (24 order rows), gold 4 orders / 7785.00 / 161 points
+- [x] FINAL notebook executed top to bottom in one kernel in FRESHCART_FINAL (all checks pass; FINAL_notebook_check.txt, FINAL_notebook.html; FRESHCART_DB untouched). [old note:] B1, B3, B4, B5 were step by step; sections 11/12 were pending; the final complete notebook run is planned after B5 and the other parts (the B1 cells' stored outputs predate the sixth check, so a final full run must start from a fresh database). Snowflake state now: 3 runs in bronze (24 order rows), gold 4 orders / 7785.00 / 161 points
 - [x] B1 baseline: 8 raw / 6 clean / 2 quarantine / 4 dedup / 4 orders, 7,785.00, 126 pts / 25%: ALL VERIFIED (notebook 16/16 PASS + independent query). Evidence: screenshots/B/B1_notebook_part1-3.png, B1_independent_verification.txt, elt/freshcart_elt.ipynb. Rendered notebook captures, not Snowsight screenshots.
 - [~] B2 trace ORD-1003 (4 points) and ORD-1005: evidence screenshots/B/B2_evidence.txt; DRAFT trace in answers.md, student must rewrite in own words
 - [x] B3 unsupported_currency rule (elt/sql/10_orders_clean.sql line 49) executed: ORD-1006 reasons before [bad_email,bad_pincode] -> after [bad_email,bad_pincode,unsupported_currency] (silver.orders_checked; quarantine row keeps old reasons); gold unchanged (4 / 7785.00 / 126); no 2nd quarantine row (NOT EXISTS). Evidence: screenshots/B/B3_notebook_section.png, B3_notebook_outputs.txt, B3_independent_verification.txt. [~] explanations are assistant DRAFTS in answers.md: student must rewrite in own words. Not committed yet.
@@ -65,3 +65,16 @@ Status: [ ] not started, [~] in progress, [x] done WITH evidence (cite it).
 - [ ] Mage Iris reference notebook (missing)
 - [ ] Zomato stream slides (missing, optional)
 - [ ] Instructor: is localhost acceptable instead of Cloudflare tunnel?
+
+## Final submission checklist (finalisation)
+- [x] FreshCart notebook with all outputs (elt/freshcart_elt.ipynb, final run) | [x] Mage project + executed notebook (iris_project/, iris_project/iris_classifier_run.ipynb) | [x] stream/dispatcher.py, stream/driver.py (+ bonus scripts)
+- [x] Report source + integration diagram + reflection (report/report.html), draft PDF builds (body 5 pages)
+- [ ] USER: give roll number and name -> final PDF `RollNo_Name_Pipelines.pdf` (python report/make_pdf.py RollNo_Name)
+- [ ] USER: rewrite the draft explanations in own words (A2, B2-B5 incl. the lecture's ETL situation, C2, D, bonus) in report/report.html (and answers.md)
+- [ ] USER: commit the untracked files (requirements-stream.txt, tests/test_topic_routing.py, report/, notebooks, handover) and push; confirm the latest GitHub Actions run is green (private repo: not readable from here)
+- [ ] USER: share the private repo with the instructor (or make it public) and put the URL in the report (already in report.html)
+- [ ] USER (instructor): Cloudflare tunnel requirement for C3 (localhost used); notebook/tool limits: evidence is rendered notebooks and logs, not Snowsight screenshots
+
+## Finalisation (submission stage)
+- [x] Final PDF generated: report/23BCS095_Gunti_Ravi_Kumar_Pipelines.pdf (body 5 pages, limit 8, plus screenshot appendix). Draft explanations are listed in report/USER_REVIEW_REQUIRED.md (NOT yet reviewed by the student); B5's lecture ETL situation is a visible placeholder for the student.
+- [x] Final checks: pytest 10 passed; compile OK; elt notebook 41/41 code cells executed, 0 errors; Mage notebook 7/7 executed, 0 errors; FRESHCART_DB baseline 4 / 7785.00 / 161 unchanged.

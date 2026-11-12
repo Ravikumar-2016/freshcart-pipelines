@@ -33,7 +33,8 @@ def load_sql(filename):
     return (SQL_DIR / filename).read_text(encoding="utf-8")
 
 
-SQL_00_SETUP = load_sql("00_setup.sql")
+# the database name in the setup script follows SNOWFLAKE_DATABASE (default FRESHCART_DB), so the notebook can also run in a fresh database
+SQL_00_SETUP = load_sql("00_setup.sql").replace("FRESHCART_DB", os.getenv("SNOWFLAKE_DATABASE") or "FRESHCART_DB")
 SQL_10_ORDERS_CLEAN = load_sql("10_orders_clean.sql")
 SQL_20_ORDERS_DEDUP = load_sql("20_orders_dedup.sql")
 SQL_30_CUSTOMERS_SCD2 = load_sql("30_customers_scd2.sql")
