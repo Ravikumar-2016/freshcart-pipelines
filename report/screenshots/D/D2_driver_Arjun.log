@@ -1,0 +1,19 @@
+10:53:51.214 [Arjun] READY queue=driver.arjun.4d6e59 pattern=bangalore.*.ride exchange=rapido-dispatch
+10:54:01.492 [Arjun] RECEIVED key=bangalore.koramangala.ride id=req-0002-242d4e payload={"id":"req-0002-242d4e","city":"bangalore","zone":"koramangala","type":"ride","ts":"2026-11-12T05:24:01+00:00"} -> ACK
+10:54:05.645 [Arjun] RECEIVED key=bangalore.koramangala.ride id=req-0004-bd6abc payload={"id":"req-0004-bd6abc","city":"bangalore","zone":"koramangala","type":"ride","ts":"2026-11-12T05:24:05+00:00"} -> ACK
+10:54:11.863 [Arjun] RECEIVED key=bangalore.whitefield.ride id=req-0007-8c7c9b payload={"id":"req-0007-8c7c9b","city":"bangalore","zone":"whitefield","type":"ride","ts":"2026-11-12T05:24:11+00:00"} -> ACK
+10:54:13.981 [Arjun] RECEIVED key=bangalore.whitefield.ride id=req-0008-2b42ea payload={"id":"req-0008-2b42ea","city":"bangalore","zone":"whitefield","type":"ride","ts":"2026-11-12T05:24:13+00:00"} -> ACK
+10:54:18.914 [Arjun] RECEIVED key=bangalore.whitefield.ride id=req-0010-f4ef39 payload={"id":"req-0010-f4ef39","city":"bangalore","zone":"whitefield","type":"ride","ts":"2026-11-12T05:24:18+00:00"} -> ACK
+10:54:25.092 [Arjun] RECEIVED key=bangalore.koramangala.ride id=req-0013-35c222 payload={"id":"req-0013-35c222","city":"bangalore","zone":"koramangala","type":"ride","ts":"2026-11-12T05:24:25+00:00"} -> ACK
+10:54:29.239 [Arjun] RECEIVED key=bangalore.whitefield.ride id=req-0015-6530ec payload={"id":"req-0015-6530ec","city":"bangalore","zone":"whitefield","type":"ride","ts":"2026-11-12T05:24:29+00:00"} -> ACK
+10:54:37.473 [Arjun] RECEIVED key=bangalore.whitefield.ride id=req-0019-0d64b6 payload={"id":"req-0019-0d64b6","city":"bangalore","zone":"whitefield","type":"ride","ts":"2026-11-12T05:24:37+00:00"} -> ACK
+10:54:47.791 [Arjun] RECEIVED key=bangalore.indiranagar.ride id=req-0024-ca15d0 payload={"id":"req-0024-ca15d0","city":"bangalore","zone":"indiranagar","type":"ride","ts":"2026-11-12T05:24:47+00:00"} -> ACK
+10:55:24.942 [Arjun] RECEIVED key=bangalore.koramangala.ride id=req-0042-11068e payload={"id":"req-0042-11068e","city":"bangalore","zone":"koramangala","type":"ride","ts":"2026-11-12T05:25:24+00:00"} -> ACK
+10:55:27.009 [Arjun] RECEIVED key=bangalore.koramangala.ride id=req-0043-9a0b20 payload={"id":"req-0043-9a0b20","city":"bangalore","zone":"koramangala","type":"ride","ts":"2026-11-12T05:25:26+00:00"} -> ACK
+10:55:37.344 [Arjun] RECEIVED key=bangalore.whitefield.ride id=req-0048-ae79a0 payload={"id":"req-0048-ae79a0","city":"bangalore","zone":"whitefield","type":"ride","ts":"2026-11-12T05:25:37+00:00"} -> ACK
+10:55:45.599 [Arjun] RECEIVED key=bangalore.koramangala.ride id=req-0052-b0c03a payload={"id":"req-0052-b0c03a","city":"bangalore","zone":"koramangala","type":"ride","ts":"2026-11-12T05:25:45+00:00"} -> ACK
+10:55:47.685 [Arjun] RECEIVED key=bangalore.indiranagar.ride id=req-0053-e6044c payload={"id":"req-0053-e6044c","city":"bangalore","zone":"indiranagar","type":"ride","ts":"2026-11-12T05:25:47+00:00"} -> ACK
+10:55:49.755 [Arjun] RECEIVED key=bangalore.indiranagar.ride id=req-0054-290fca payload={"id":"req-0054-290fca","city":"bangalore","zone":"indiranagar","type":"ride","ts":"2026-11-12T05:25:49+00:00"} -> ACK
+10:55:51.827 [Arjun] RECEIVED key=bangalore.koramangala.ride id=req-0055-812524 payload={"id":"req-0055-812524","city":"bangalore","zone":"koramangala","type":"ride","ts":"2026-11-12T05:25:51+00:00"} -> ACK
+10:55:53.905 [Arjun] RECEIVED key=bangalore.indiranagar.ride id=req-0056-6315cf payload={"id":"req-0056-6315cf","city":"bangalore","zone":"indiranagar","type":"ride","ts":"2026-11-12T05:25:53+00:00"} -> ACK
+10:56:07.247 [Arjun] STOPPED acked=17 nacked=0

@@ -1,0 +1,11 @@
+1. settings (RABBITMQ_URL)          : OK (scheme amqps, host/credentials hidden)
+2. DNS lookup of the broker host    : OK
+3. TCP 5671  (AMQPS)             : unreachable (TimeoutError)
+3. TCP 5672  (AMQP)              : unreachable (TimeoutError)
+3. TCP 443   (HTTPS, mgmt API)   : OPEN
+4. TLS handshake on 443             : OK (TLSv1.3)
+5. management API login (HTTPS)     : OK (credentials accepted, vhost reachable: True, 7 exchanges)
+6. AMQP login (pika)                : FAIL - could not connect to the broker (AMQPConnectionError: )
+
+DIAGNOSIS: the instance is alive and the HTTPS API answers, but the AMQP port is not reachable from this network.
+This is a local network restriction, not a code or credential problem. Try a phone hotspot or another Wi-Fi, disable any VPN, and re-run this script.

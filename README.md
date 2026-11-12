@@ -28,6 +28,18 @@ pip install -r requirements.txt
 Python 3.12 is required. Copy `.env.example` to `.env` and fill in your own
 values. `.env` is git-ignored and must never be committed.
 
+## Part D: RabbitMQ stream (CloudAMQP)
+```powershell
+pip install -r requirements-stream.txt          # pika
+# put your AMQP URL in .env as RABBITMQ_URL (never commit it); then:
+python stream\check_connection.py               # layered connectivity check
+python stream/verify_routing.py                 # D1: six routing keys against the live broker
+python stream\driver.py Ravi "bangalore.koramangala.*"   # one terminal per driver
+python stream\driver.py Control "bangalore.#"
+python stream\dispatcher.py --duration 120      # every 2 s; every 10th message malformed (--bad-every 0 to disable)
+python stream\d3_demo.py                        # D3: ACK / NACK / crash / requeue demo
+```
+
 ## Status
 
 Tracked in `report/checklist.md`.

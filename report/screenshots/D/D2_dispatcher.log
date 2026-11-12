@@ -1,0 +1,61 @@
+10:53:59.359 DISPATCHER READY exchange=rapido-dispatch type=topic interval=2.0s bad_every=0 duration=120.0
+10:53:59.423 SENT #001 id=req-0001-90dd9f key=chennai.tnagar.food
+10:54:01.492 SENT #002 id=req-0002-242d4e key=bangalore.koramangala.ride
+10:54:03.583 SENT #003 id=req-0003-9b8e1e key=chennai.velachery.ride DROPPED(no queue matches)
+10:54:05.645 SENT #004 id=req-0004-bd6abc key=bangalore.koramangala.ride
+10:54:07.730 SENT #005 id=req-0005-69c7e8 key=chennai.adyar.ride DROPPED(no queue matches)
+10:54:09.809 SENT #006 id=req-0006-b7b36d key=bangalore.koramangala.food
+10:54:11.863 SENT #007 id=req-0007-8c7c9b key=bangalore.whitefield.ride
+10:54:13.980 SENT #008 id=req-0008-2b42ea key=bangalore.whitefield.ride
+10:54:16.684 SENT #009 id=req-0009-e9042f key=chennai.tnagar.ride DROPPED(no queue matches)
+10:54:18.914 SENT #010 id=req-0010-f4ef39 key=bangalore.whitefield.ride
+10:54:20.989 SENT #011 id=req-0011-1974ab key=chennai.adyar.ride DROPPED(no queue matches)
+10:54:23.054 SENT #012 id=req-0012-9d8810 key=bangalore.whitefield.food
+10:54:25.092 SENT #013 id=req-0013-35c222 key=bangalore.koramangala.ride
+10:54:27.153 SENT #014 id=req-0014-1e1fce key=chennai.tnagar.ride DROPPED(no queue matches)
+10:54:29.239 SENT #015 id=req-0015-6530ec key=bangalore.whitefield.ride
+10:54:31.295 SENT #016 id=req-0016-c9642e key=chennai.velachery.food DROPPED(no queue matches)
+10:54:33.348 SENT #017 id=req-0017-ca2249 key=chennai.adyar.food DROPPED(no queue matches)
+10:54:35.422 SENT #018 id=req-0018-cdc8cf key=chennai.adyar.ride DROPPED(no queue matches)
+10:54:37.473 SENT #019 id=req-0019-0d64b6 key=bangalore.whitefield.ride
+10:54:39.549 SENT #020 id=req-0020-928f03 key=bangalore.whitefield.food
+10:54:41.615 SENT #021 id=req-0021-469116 key=chennai.adyar.food DROPPED(no queue matches)
+10:54:43.677 SENT #022 id=req-0022-1e01c9 key=chennai.velachery.ride DROPPED(no queue matches)
+10:54:45.737 SENT #023 id=req-0023-ef251a key=bangalore.whitefield.food
+10:54:47.791 SENT #024 id=req-0024-ca15d0 key=bangalore.indiranagar.ride
+10:54:49.874 SENT #025 id=req-0025-33eddd key=chennai.adyar.ride DROPPED(no queue matches)
+10:54:51.925 SENT #026 id=req-0026-1bb04e key=bangalore.whitefield.food
+10:54:53.985 SENT #027 id=req-0027-8bf0d5 key=chennai.velachery.food DROPPED(no queue matches)
+10:54:56.059 SENT #028 id=req-0028-7d0a4d key=chennai.velachery.food DROPPED(no queue matches)
+10:54:58.114 SENT #029 id=req-0029-f78de5 key=bangalore.koramangala.food
+10:55:00.201 SENT #030 id=req-0030-c7e207 key=chennai.velachery.ride DROPPED(no queue matches)
+10:55:02.274 SENT #031 id=req-0031-6408a7 key=bangalore.whitefield.food
+10:55:04.344 SENT #032 id=req-0032-291872 key=chennai.adyar.food DROPPED(no queue matches)
+10:55:06.397 SENT #033 id=req-0033-6fdd2f key=chennai.tnagar.food
+10:55:08.468 SENT #034 id=req-0034-bde217 key=chennai.tnagar.ride DROPPED(no queue matches)
+10:55:10.547 SENT #035 id=req-0035-17700c key=chennai.tnagar.ride DROPPED(no queue matches)
+10:55:12.588 SENT #036 id=req-0036-73d506 key=chennai.tnagar.ride DROPPED(no queue matches)
+10:55:14.647 SENT #037 id=req-0037-987e5a key=chennai.adyar.food DROPPED(no queue matches)
+10:55:16.714 SENT #038 id=req-0038-678598 key=bangalore.koramangala.food
+10:55:18.774 SENT #039 id=req-0039-c986f0 key=chennai.velachery.food DROPPED(no queue matches)
+10:55:20.846 SENT #040 id=req-0040-447e0b key=bangalore.indiranagar.food
+10:55:22.895 SENT #041 id=req-0041-5851da key=chennai.adyar.food DROPPED(no queue matches)
+10:55:24.942 SENT #042 id=req-0042-11068e key=bangalore.koramangala.ride
+10:55:27.009 SENT #043 id=req-0043-9a0b20 key=bangalore.koramangala.ride
+10:55:29.068 SENT #044 id=req-0044-fd0d64 key=bangalore.koramangala.food
+10:55:31.130 SENT #045 id=req-0045-c47e86 key=bangalore.indiranagar.food
+10:55:33.207 SENT #046 id=req-0046-1c72ac key=bangalore.koramangala.food
+10:55:35.283 SENT #047 id=req-0047-15c455 key=chennai.velachery.food DROPPED(no queue matches)
+10:55:37.343 SENT #048 id=req-0048-ae79a0 key=bangalore.whitefield.ride
+10:55:39.391 SENT #049 id=req-0049-a4603e key=chennai.velachery.food DROPPED(no queue matches)
+10:55:41.473 SENT #050 id=req-0050-2cc5ba key=chennai.adyar.food DROPPED(no queue matches)
+10:55:43.520 SENT #051 id=req-0051-9f1872 key=bangalore.indiranagar.food
+10:55:45.599 SENT #052 id=req-0052-b0c03a key=bangalore.koramangala.ride
+10:55:47.685 SENT #053 id=req-0053-e6044c key=bangalore.indiranagar.ride
+10:55:49.755 SENT #054 id=req-0054-290fca key=bangalore.indiranagar.ride
+10:55:51.827 SENT #055 id=req-0055-812524 key=bangalore.koramangala.ride
+10:55:53.905 SENT #056 id=req-0056-6315cf key=bangalore.indiranagar.ride
+10:55:55.982 SENT #057 id=req-0057-56639b key=bangalore.koramangala.food
+10:55:58.037 SENT #058 id=req-0058-2b4636 key=bangalore.whitefield.food
+10:56:00.115 SENT #059 id=req-0059-87f3b1 key=chennai.velachery.food DROPPED(no queue matches)
+10:56:00.228 DISPATCHER STOPPED sent=59 malformed=0 dropped_unrouted=25

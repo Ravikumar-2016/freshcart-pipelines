@@ -1,0 +1,15 @@
+10:53:51.392 [Ravi] READY queue=driver.ravi.caffbd pattern=bangalore.koramangala.* exchange=rapido-dispatch
+10:54:01.492 [Ravi] RECEIVED key=bangalore.koramangala.ride id=req-0002-242d4e payload={"id":"req-0002-242d4e","city":"bangalore","zone":"koramangala","type":"ride","ts":"2026-11-12T05:24:01+00:00"} -> ACK
+10:54:05.645 [Ravi] RECEIVED key=bangalore.koramangala.ride id=req-0004-bd6abc payload={"id":"req-0004-bd6abc","city":"bangalore","zone":"koramangala","type":"ride","ts":"2026-11-12T05:24:05+00:00"} -> ACK
+10:54:09.809 [Ravi] RECEIVED key=bangalore.koramangala.food id=req-0006-b7b36d payload={"id":"req-0006-b7b36d","city":"bangalore","zone":"koramangala","type":"food","ts":"2026-11-12T05:24:09+00:00"} -> ACK
+10:54:25.092 [Ravi] RECEIVED key=bangalore.koramangala.ride id=req-0013-35c222 payload={"id":"req-0013-35c222","city":"bangalore","zone":"koramangala","type":"ride","ts":"2026-11-12T05:24:25+00:00"} -> ACK
+10:54:58.114 [Ravi] RECEIVED key=bangalore.koramangala.food id=req-0029-f78de5 payload={"id":"req-0029-f78de5","city":"bangalore","zone":"koramangala","type":"food","ts":"2026-11-12T05:24:58+00:00"} -> ACK
+10:55:16.714 [Ravi] RECEIVED key=bangalore.koramangala.food id=req-0038-678598 payload={"id":"req-0038-678598","city":"bangalore","zone":"koramangala","type":"food","ts":"2026-11-12T05:25:16+00:00"} -> ACK
+10:55:24.942 [Ravi] RECEIVED key=bangalore.koramangala.ride id=req-0042-11068e payload={"id":"req-0042-11068e","city":"bangalore","zone":"koramangala","type":"ride","ts":"2026-11-12T05:25:24+00:00"} -> ACK
+10:55:27.009 [Ravi] RECEIVED key=bangalore.koramangala.ride id=req-0043-9a0b20 payload={"id":"req-0043-9a0b20","city":"bangalore","zone":"koramangala","type":"ride","ts":"2026-11-12T05:25:26+00:00"} -> ACK
+10:55:29.068 [Ravi] RECEIVED key=bangalore.koramangala.food id=req-0044-fd0d64 payload={"id":"req-0044-fd0d64","city":"bangalore","zone":"koramangala","type":"food","ts":"2026-11-12T05:25:29+00:00"} -> ACK
+10:55:33.207 [Ravi] RECEIVED key=bangalore.koramangala.food id=req-0046-1c72ac payload={"id":"req-0046-1c72ac","city":"bangalore","zone":"koramangala","type":"food","ts":"2026-11-12T05:25:33+00:00"} -> ACK
+10:55:45.599 [Ravi] RECEIVED key=bangalore.koramangala.ride id=req-0052-b0c03a payload={"id":"req-0052-b0c03a","city":"bangalore","zone":"koramangala","type":"ride","ts":"2026-11-12T05:25:45+00:00"} -> ACK
+10:55:51.827 [Ravi] RECEIVED key=bangalore.koramangala.ride id=req-0055-812524 payload={"id":"req-0055-812524","city":"bangalore","zone":"koramangala","type":"ride","ts":"2026-11-12T05:25:51+00:00"} -> ACK
+10:55:55.982 [Ravi] RECEIVED key=bangalore.koramangala.food id=req-0057-56639b payload={"id":"req-0057-56639b","city":"bangalore","zone":"koramangala","type":"food","ts":"2026-11-12T05:25:55+00:00"} -> ACK
+10:56:07.294 [Ravi] STOPPED acked=13 nacked=0

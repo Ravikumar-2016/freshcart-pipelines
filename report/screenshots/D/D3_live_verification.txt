@@ -1,0 +1,8 @@
+messages sent: 35 (malformed 3), expected to be dropped (no driver): 18
+  Ravi     pattern bangalore.koramangala.*   received   5  {('RECEIVED', 'ACK'): 5}  unexpected ids: 0
+  Priya    pattern bangalore.indiranagar.*   received   5  {('RECEIVED', 'ACK'): 5}  unexpected ids: 0
+  Arjun    pattern bangalore.*.ride          received   9  {('RECEIVED', 'ACK'): 7, ('REJECTED', 'NACK'): 2}  unexpected ids: 0
+  Meena    pattern bangalore.*.food          received   8  {('RECEIVED', 'ACK'): 8}  unexpected ids: 0
+  Karthik  pattern chennai.tnagar.food       received   0  {}  unexpected ids: 0
+  Control  pattern bangalore.#               received  17  {('RECEIVED', 'ACK'): 15, ('REJECTED', 'NACK'): 2}  unexpected ids: 0
+RESULT: PASS: every message reached exactly the predicted drivers

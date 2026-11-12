@@ -1,0 +1,11 @@
+10:56:48.714 [Arjun] READY queue=driver.arjun.a8be89 pattern=bangalore.*.ride exchange=rapido-dispatch
+10:57:09.188 [Arjun] RECEIVED key=bangalore.whitefield.ride id=req-0008-20a595 payload={"id":"req-0008-20a595","city":"bangalore","zone":"whitefield","type":"ride","ts":"2026-11-12T05:27:09+00:00"} -> ACK
+10:57:11.259 [Arjun] RECEIVED key=bangalore.koramangala.ride id=req-0009-bdb85d payload={"id":"req-0009-bdb85d","city":"bangalore","zone":"koramangala","type":"ride","ts":"2026-11-12T05:27:11+00:00"} -> ACK
+10:57:13.336 [Arjun] REJECTED key=bangalore.whitefield.ride id=req-0010-8e907c reason=missing field 'zone' payload={"id":"req-0010-8e907c","city":"bangalore","type":"ride","ts":"2026-11-12T05:27:13+00:00"} redelivered=False -> NACK (requeue=False, discarded)
+10:57:17.481 [Arjun] RECEIVED key=bangalore.whitefield.ride id=req-0012-ad5994 payload={"id":"req-0012-ad5994","city":"bangalore","zone":"whitefield","type":"ride","ts":"2026-11-12T05:27:17+00:00"} -> ACK
+10:57:29.981 [Arjun] RECEIVED key=bangalore.indiranagar.ride id=req-0018-6dda2e payload={"id":"req-0018-6dda2e","city":"bangalore","zone":"indiranagar","type":"ride","ts":"2026-11-12T05:27:29+00:00"} -> ACK
+10:57:34.125 [Arjun] REJECTED key=bangalore.whitefield.ride id=req-0020-db41fb reason=missing field 'zone' payload={"id":"req-0020-db41fb","city":"bangalore","type":"ride","ts":"2026-11-12T05:27:34+00:00"} redelivered=False -> NACK (requeue=False, discarded)
+10:57:36.220 [Arjun] RECEIVED key=bangalore.koramangala.ride id=req-0021-bafcc8 payload={"id":"req-0021-bafcc8","city":"bangalore","zone":"koramangala","type":"ride","ts":"2026-11-12T05:27:36+00:00"} -> ACK
+10:57:48.691 [Arjun] RECEIVED key=bangalore.whitefield.ride id=req-0027-237344 payload={"id":"req-0027-237344","city":"bangalore","zone":"whitefield","type":"ride","ts":"2026-11-12T05:27:48+00:00"} -> ACK
+10:58:05.325 [Arjun] RECEIVED key=bangalore.indiranagar.ride id=req-0035-93f67d payload={"id":"req-0035-93f67d","city":"bangalore","zone":"indiranagar","type":"ride","ts":"2026-11-12T05:28:05+00:00"} -> ACK
+10:58:14.558 [Arjun] STOPPED acked=7 nacked=2

@@ -44,10 +44,13 @@ Status: [ ] not started, [~] in progress, [x] done WITH evidence (cite it).
 - [~] C4 validate_data block + 2 @tests executed and passing locally; NOT yet committed/pushed, CI green for it NOT yet confirmed
 - [ ] Differences vs Mage reference notebook unknown (notebook not available); MIN_ACCURACY=0.90 is my own choice
 
-## Part D (needs RabbitMQ)
-- [ ] D1 table (BEFORE running) + 2-word key explanation
-- [ ] D2 dispatcher + driver; 2-minute run, 3+ drivers, output matches D1
-- [ ] D3 nack/ack, bad message every 10; crash and requeue answers
+## Part D (RabbitMQ on CloudAMQP; broker reachable after switching network)
+- [x] D1 on paper: predictions written before any broker traffic (answers.md, unedited); two-word-key explanation. [x] D1 verified on the live broker: 6/6 PASS (screenshots/D/D1_routing_verification.txt)
+- [x] D2 dispatcher.py + driver.py implemented; executed with dispatcher + 6 drivers, 120 s publishing (05:23:50-05:26:00 UTC), 59 messages, all ACKed; independently verified against the routing model by stream/verify_logs.py (PASS, 0 unexpected). Evidence: D2_*.log, D2_verification.txt. [ ] No terminal screenshots (log files only)
+- [x] D3 ACK/NACK: live run (3 malformed of 35, NACKed, valid ACKed) + scripted demo (ACK, NACK requeue=False, crash redelivery, requeue=True loop). No DLX configured (stated). Evidence: D3_*.log/txt
+- [~] D answers in answers.md: explanations are assistant DRAFTS; student must rewrite in own words (D1 predictions were co-written)
+- [ ] Optional: CloudAMQP management UI screenshot (not taken)
+- [ ] Part D files NOT committed yet
 
 ## Part E
 - [ ] Integration diagram

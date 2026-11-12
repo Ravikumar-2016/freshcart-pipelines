@@ -336,8 +336,64 @@ Mage dependencies are in `requirements-mage.txt` (not installed by CI). pytest (
 
 ## Part D
 ### D1
+**Design.** Exchange `rapido-dispatch`, type `topic`. Every driver has its own private queue bound with its own pattern:
+
+| Driver | Binding pattern |
+|---|---|
+| Ravi | `bangalore.koramangala.*` |
+| Priya | `bangalore.indiranagar.*` |
+| Arjun | `bangalore.*.ride` |
+| Meena | `bangalore.*.food` |
+| Karthik | `chennai.tnagar.food` |
+| Control | `bangalore.#` |
+
+A routing key is a list of words separated by dots (`city.zone.type`). In a binding pattern, **`*` matches exactly one word** (never zero, never two) and **`#` matches zero or more words**. Words that are not `*`/`#` must match literally.
+
+#### PRE-RUN PREDICTIONS (D1 on paper, recorded 2026-11-12 BEFORE any message was published to the broker)
+> The expected recipients below were given by the student at the start of Part D; the assistant added the reasoning. The assignment wants the paper answer to be your own and the viva checks this:
+> make sure you can redo each row yourself. Do not change this table after the verification run.
+
+| # | Routing key | Predicted receiving queues | Reasoning |
+|---|---|---|---|
+| 1 | `bangalore.koramangala.food` | **Ravi, Meena, Control** | Ravi: `bangalore.koramangala.*`, `*` = `food`. Meena: `bangalore.*.food`, `*` = `koramangala`. Control: `bangalore.#`, `#` = `koramangala.food`. Priya (indiranagar) and Arjun (`.ride`) differ; Karthik is chennai. |
+| 2 | `bangalore.indiranagar.ride` | **Priya, Arjun, Control** | Priya: `bangalore.indiranagar.*`. Arjun: `bangalore.*.ride`. Control: `bangalore.#`. Ravi (koramangala) and Meena (`.food`) do not match. |
+| 3 | `bangalore.whitefield.ride` | **Arjun, Control** | Arjun: `bangalore.*.ride` with `*` = `whitefield`. Control matches anything under `bangalore`. No driver has a `whitefield` zone pattern and Meena wants `food`. |
+| 4 | `chennai.tnagar.food` | **Karthik** | Karthik's pattern is the literal key. Everything else starts with `bangalore`. |
+| 5 | `chennai.whitefield.ride` | **dropped (no queue)** | Nothing is bound for chennai except the literal `chennai.tnagar.food`; the exchange silently drops the message. |
+| 6 | `bangalore.koramangala` | **Control only** | See below. |
+
+**Question 6 (only two words).** The key `bangalore.koramangala` has two words. Ravi's `bangalore.koramangala.*`, Priya's, Arjun's `bangalore.*.ride` and Meena's `bangalore.*.food` all need **three** words, because each contains a `*` that must match exactly one word and the key has no third word for it; Karthik's literal pattern is three words too.
+Only `bangalore.#` can match: `bangalore` matches the first word, and `#` matches the remaining word `koramangala` (it would also match zero words, so even the key `bangalore` alone would reach Control). So only Control receives it.
+
+#### ACTUAL RESULT (D1 on the live broker; the predictions above are untouched)
+`python stream\verify_routing.py` (CloudAMQP, exchange `rapido-dispatch`, run b3b721) created one private queue per driver with the bindings of the table, published the six keys with the `mandatory` flag, and read every queue back.
+**All 6 cases PASS**: the recipients read from the broker's queues equal the paper predictions above and an independent pure-Python model (`stream/topic.py`). Case 5 was reported by the broker as unroutable (dropped); case 6 reached only Control.
+Evidence: `report/screenshots/D/D1_routing_verification.txt`. Unit test: `tests/test_topic_routing.py` (9 tests, no broker needed, runs in CI).
+
 ### D2
+**Implementation** (`stream/`): `dispatcher.py` publishes every 2 s to the durable topic exchange `rapido-dispatch` a persistent JSON message `{"id","city","zone","type","ts"}` with routing key `city.zone.type` (city bangalore/chennai, random zone and ride/food; broker confirms and the `mandatory` flag report unroutable messages).
+`driver.py NAME PATTERN` declares its own private (exclusive, auto-delete) queue, binds it with PATTERN, consumes with manual acknowledgements, prints driver name, routing key and payload, and sends `basic_ack` after processing. Shared code is in `common.py` (connection from `RABBITMQ_URL` in `.env`, never printed; clear errors for a missing, placeholder or invalid URL).
+
+**Run** (separate processes, logs saved): the 6 drivers (Ravi, Priya, Arjun, Meena, Karthik, Control, patterns as in D1) were started first, then `python stream\dispatcher.py --duration 120 --bad-every 0 --seed 7`. The dispatcher ran 05:23:50 to 05:26:00 UTC (about 2 min 10 s including an 8 s head start for the drivers; 120 s of publishing); **59 messages sent**.
+`stream/verify_logs.py` compared the logs with the routing model for every message: **PASS, every message reached exactly the predicted drivers and nobody else** (0 unexpected deliveries). Deliveries: Ravi 13, Priya 7, Arjun 17, Meena 15, Karthik 2, Control 32, **all ACKed, 0 NACKs**. 25 messages (e.g. `chennai.velachery.food`) matched no pattern and were dropped by the exchange (the dispatcher printed `DROPPED(no queue matches)`), as D1 case 5 predicts. Control received every Bangalore message.
+Evidence: `report/screenshots/D/D2_dispatcher.log`, `D2_driver_<Name>.log`, `D2_verification.txt`, `D2_run_times.txt`. Log lines carry local (IST) time; the `ts` in each payload is UTC. Limitation: the evidence is log files, not terminal screenshots.
+
 ### D3
+**Implementation.** In `driver.py` (`handle_delivery`) a message without a `zone` (or not valid JSON) gets `basic_nack(requeue=False)`; every other message gets `basic_ack`. `dispatcher.py` makes every 10th message malformed (the `zone` field is removed from the body, the routing key keeps it).
+
+**Demonstration 1, live run** (6 drivers, dispatcher default `--bad-every 10`, 70 s, seed 11): 35 sent, 3 malformed (#10, #20, #30). Messages #10 and #20 (`bangalore.whitefield.ride`) were `REJECTED reason=missing field 'zone' ... -> NACK (requeue=False, discarded)` by both Arjun and Control; every valid message was `ACK`ed; #30 (`chennai.velachery.ride`) matched no queue. Verification: PASS, 0 unexpected deliveries. Files: `D3_dispatcher.log`, `D3_driver_<Name>.log`, `D3_live_verification.txt`.
+
+**Demonstration 2, scripted** (`python stream\d3_demo.py`, one private queue, queue depth read from the broker; `D3_ack_nack_demo.txt`): valid message -> ACK, depth 1 -> 0. Malformed -> NACK(requeue=False), depth 1 -> 0 (gone). A consumer that received a valid message and then closed its channel without ACK: depth back to 1 and the next delivery had `redelivered=True`. A malformed message with `requeue=True` came back on 4 of 4 attempts (`redelivered=True`) and the depth stayed 1.
+
+**No dead-letter exchange (DLX) is configured**, so "discarded" means the broker deletes the message; nothing was moved to a dead-letter queue and no such claim is made.
+
+> DRAFT explanations written by the assistant: rewrite in your own words before submitting.
+
+**What does manual acknowledgement do?** With manual acks the broker keeps each delivered message as "unacknowledged" until the consumer sends `basic_ack` (done, remove it) or `basic_nack` (not processed). A message is only removed after the consumer finished its work, so a failure in the middle does not lose it.
+
+**If the consumer crashes before sending the ACK?** The connection closes with the message still unacknowledged, so RabbitMQ puts it back in the queue and delivers it again (flagged `redelivered=True`); shown in demo 2, step 3. This gives at-least-once delivery, so handlers must tolerate a duplicate.
+
+**Why `requeue=False`, and what happens with `requeue=True` for an always-bad message?** A malformed message can never become valid. With `requeue=True` it returns to the queue, is delivered again and fails again, forever (a poison-message loop; demo 2, step 4: `redelivered=True` every time, depth never drops), wasting CPU and, with `prefetch_count=1`, blocking the messages behind it. `requeue=False` removes it after one failure; a real system would additionally dead-letter it to inspect it later.
 
 ## Part E
 ### Integration diagram

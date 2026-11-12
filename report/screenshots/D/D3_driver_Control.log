@@ -1,0 +1,19 @@
+10:56:48.630 [Control] READY queue=driver.control.383179 pattern=bangalore.# exchange=rapido-dispatch
+10:56:58.804 [Control] RECEIVED key=bangalore.whitefield.food id=req-0003-92c2c9 payload={"id":"req-0003-92c2c9","city":"bangalore","zone":"whitefield","type":"food","ts":"2026-11-12T05:26:58+00:00"} -> ACK
+10:57:00.896 [Control] RECEIVED key=bangalore.koramangala.food id=req-0004-53de08 payload={"id":"req-0004-53de08","city":"bangalore","zone":"koramangala","type":"food","ts":"2026-11-12T05:27:00+00:00"} -> ACK
+10:57:05.025 [Control] RECEIVED key=bangalore.whitefield.food id=req-0006-5bb65c payload={"id":"req-0006-5bb65c","city":"bangalore","zone":"whitefield","type":"food","ts":"2026-11-12T05:27:04+00:00"} -> ACK
+10:57:09.184 [Control] RECEIVED key=bangalore.whitefield.ride id=req-0008-20a595 payload={"id":"req-0008-20a595","city":"bangalore","zone":"whitefield","type":"ride","ts":"2026-11-12T05:27:09+00:00"} -> ACK
+10:57:11.247 [Control] RECEIVED key=bangalore.koramangala.ride id=req-0009-bdb85d payload={"id":"req-0009-bdb85d","city":"bangalore","zone":"koramangala","type":"ride","ts":"2026-11-12T05:27:11+00:00"} -> ACK
+10:57:13.325 [Control] REJECTED key=bangalore.whitefield.ride id=req-0010-8e907c reason=missing field 'zone' payload={"id":"req-0010-8e907c","city":"bangalore","type":"ride","ts":"2026-11-12T05:27:13+00:00"} redelivered=False -> NACK (requeue=False, discarded)
+10:57:17.469 [Control] RECEIVED key=bangalore.whitefield.ride id=req-0012-ad5994 payload={"id":"req-0012-ad5994","city":"bangalore","zone":"whitefield","type":"ride","ts":"2026-11-12T05:27:17+00:00"} -> ACK
+10:57:21.636 [Control] RECEIVED key=bangalore.indiranagar.food id=req-0014-1a59e9 payload={"id":"req-0014-1a59e9","city":"bangalore","zone":"indiranagar","type":"food","ts":"2026-11-12T05:27:21+00:00"} -> ACK
+10:57:29.970 [Control] RECEIVED key=bangalore.indiranagar.ride id=req-0018-6dda2e payload={"id":"req-0018-6dda2e","city":"bangalore","zone":"indiranagar","type":"ride","ts":"2026-11-12T05:27:29+00:00"} -> ACK
+10:57:34.125 [Control] REJECTED key=bangalore.whitefield.ride id=req-0020-db41fb reason=missing field 'zone' payload={"id":"req-0020-db41fb","city":"bangalore","type":"ride","ts":"2026-11-12T05:27:34+00:00"} redelivered=False -> NACK (requeue=False, discarded)
+10:57:36.202 [Control] RECEIVED key=bangalore.koramangala.ride id=req-0021-bafcc8 payload={"id":"req-0021-bafcc8","city":"bangalore","zone":"koramangala","type":"ride","ts":"2026-11-12T05:27:36+00:00"} -> ACK
+10:57:48.685 [Control] RECEIVED key=bangalore.whitefield.ride id=req-0027-237344 payload={"id":"req-0027-237344","city":"bangalore","zone":"whitefield","type":"ride","ts":"2026-11-12T05:27:48+00:00"} -> ACK
+10:57:50.759 [Control] RECEIVED key=bangalore.koramangala.food id=req-0028-74cd55 payload={"id":"req-0028-74cd55","city":"bangalore","zone":"koramangala","type":"food","ts":"2026-11-12T05:27:50+00:00"} -> ACK
+10:57:57.004 [Control] RECEIVED key=bangalore.indiranagar.food id=req-0031-95d2ad payload={"id":"req-0031-95d2ad","city":"bangalore","zone":"indiranagar","type":"food","ts":"2026-11-12T05:27:56+00:00"} -> ACK
+10:57:59.090 [Control] RECEIVED key=bangalore.indiranagar.food id=req-0032-cf7c13 payload={"id":"req-0032-cf7c13","city":"bangalore","zone":"indiranagar","type":"food","ts":"2026-11-12T05:27:59+00:00"} -> ACK
+10:58:01.170 [Control] RECEIVED key=bangalore.koramangala.food id=req-0033-14cbe5 payload={"id":"req-0033-14cbe5","city":"bangalore","zone":"koramangala","type":"food","ts":"2026-11-12T05:28:01+00:00"} -> ACK
+10:58:05.325 [Control] RECEIVED key=bangalore.indiranagar.ride id=req-0035-93f67d payload={"id":"req-0035-93f67d","city":"bangalore","zone":"indiranagar","type":"ride","ts":"2026-11-12T05:28:05+00:00"} -> ACK
+10:58:14.558 [Control] STOPPED acked=15 nacked=2

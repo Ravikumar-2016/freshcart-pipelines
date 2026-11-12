@@ -1,0 +1,28 @@
+D1 routing verification on exchange 'rapido-dispatch' (type topic), run b3b721
+
+Private queues and bindings created on the broker:
+  Ravi     queue=d1verify.ravi.b3b721     binding=bangalore.koramangala.*
+  Priya    queue=d1verify.priya.b3b721    binding=bangalore.indiranagar.*
+  Arjun    queue=d1verify.arjun.b3b721    binding=bangalore.*.ride
+  Meena    queue=d1verify.meena.b3b721    binding=bangalore.*.food
+  Karthik  queue=d1verify.karthik.b3b721  binding=chennai.tnagar.food
+  Control  queue=d1verify.control.b3b721  binding=bangalore.#
+
+Publishing the six routing keys (mandatory flag: the broker tells us if no queue matched):
+  case 1: key=bangalore.koramangala.food     routed_to_at_least_one_queue=True
+  case 2: key=bangalore.indiranagar.ride     routed_to_at_least_one_queue=True
+  case 3: key=bangalore.whitefield.ride      routed_to_at_least_one_queue=True
+  case 4: key=chennai.tnagar.food            routed_to_at_least_one_queue=True
+  case 5: key=chennai.whitefield.ride        routed_to_at_least_one_queue=False
+  case 6: key=bangalore.koramangala          routed_to_at_least_one_queue=True
+
+Result (actual = read back from the broker's queues):
+  #  routing key                    actual (broker)              predicted (paper)            reference model              result
+  1  bangalore.koramangala.food     Ravi, Meena, Control         Ravi, Meena, Control         Ravi, Meena, Control         PASS
+  2  bangalore.indiranagar.ride     Priya, Arjun, Control        Priya, Arjun, Control        Priya, Arjun, Control        PASS
+  3  bangalore.whitefield.ride      Arjun, Control               Arjun, Control               Arjun, Control               PASS
+  4  chennai.tnagar.food            Karthik                      Karthik                      Karthik                      PASS
+  5  chennai.whitefield.ride        dropped                      dropped                      dropped                      PASS
+  6  bangalore.koramangala          Control                      Control                      Control                      PASS
+
+ALL 6 ROUTING CASES PASS

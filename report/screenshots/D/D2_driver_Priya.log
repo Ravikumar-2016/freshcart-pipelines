@@ -1,0 +1,9 @@
+10:53:51.214 [Priya] READY queue=driver.priya.271984 pattern=bangalore.indiranagar.* exchange=rapido-dispatch
+10:54:47.791 [Priya] RECEIVED key=bangalore.indiranagar.ride id=req-0024-ca15d0 payload={"id":"req-0024-ca15d0","city":"bangalore","zone":"indiranagar","type":"ride","ts":"2026-11-12T05:24:47+00:00"} -> ACK
+10:55:20.846 [Priya] RECEIVED key=bangalore.indiranagar.food id=req-0040-447e0b payload={"id":"req-0040-447e0b","city":"bangalore","zone":"indiranagar","type":"food","ts":"2026-11-12T05:25:20+00:00"} -> ACK
+10:55:31.130 [Priya] RECEIVED key=bangalore.indiranagar.food id=req-0045-c47e86 payload={"id":"req-0045-c47e86","city":"bangalore","zone":"indiranagar","type":"food","ts":"2026-11-12T05:25:31+00:00"} -> ACK
+10:55:43.536 [Priya] RECEIVED key=bangalore.indiranagar.food id=req-0051-9f1872 payload={"id":"req-0051-9f1872","city":"bangalore","zone":"indiranagar","type":"food","ts":"2026-11-12T05:25:43+00:00"} -> ACK
+10:55:47.685 [Priya] RECEIVED key=bangalore.indiranagar.ride id=req-0053-e6044c payload={"id":"req-0053-e6044c","city":"bangalore","zone":"indiranagar","type":"ride","ts":"2026-11-12T05:25:47+00:00"} -> ACK
+10:55:49.755 [Priya] RECEIVED key=bangalore.indiranagar.ride id=req-0054-290fca payload={"id":"req-0054-290fca","city":"bangalore","zone":"indiranagar","type":"ride","ts":"2026-11-12T05:25:49+00:00"} -> ACK
+10:55:53.905 [Priya] RECEIVED key=bangalore.indiranagar.ride id=req-0056-6315cf payload={"id":"req-0056-6315cf","city":"bangalore","zone":"indiranagar","type":"ride","ts":"2026-11-12T05:25:53+00:00"} -> ACK
+10:56:07.207 [Priya] STOPPED acked=7 nacked=0

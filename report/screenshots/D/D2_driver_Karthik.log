@@ -1,0 +1,4 @@
+10:53:51.259 [Karthik] READY queue=driver.karthik.f5d1ec pattern=chennai.tnagar.food exchange=rapido-dispatch
+10:53:59.423 [Karthik] RECEIVED key=chennai.tnagar.food id=req-0001-90dd9f payload={"id":"req-0001-90dd9f","city":"chennai","zone":"tnagar","type":"food","ts":"2026-11-12T05:23:59+00:00"} -> ACK
+10:55:06.397 [Karthik] RECEIVED key=chennai.tnagar.food id=req-0033-6fdd2f payload={"id":"req-0033-6fdd2f","city":"chennai","zone":"tnagar","type":"food","ts":"2026-11-12T05:25:06+00:00"} -> ACK
+10:56:07.113 [Karthik] STOPPED acked=2 nacked=0

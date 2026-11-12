@@ -1,0 +1,17 @@
+10:53:51.147 [Meena] READY queue=driver.meena.ac170e pattern=bangalore.*.food exchange=rapido-dispatch
+10:54:09.786 [Meena] RECEIVED key=bangalore.koramangala.food id=req-0006-b7b36d payload={"id":"req-0006-b7b36d","city":"bangalore","zone":"koramangala","type":"food","ts":"2026-11-12T05:24:09+00:00"} -> ACK
+10:54:23.047 [Meena] RECEIVED key=bangalore.whitefield.food id=req-0012-9d8810 payload={"id":"req-0012-9d8810","city":"bangalore","zone":"whitefield","type":"food","ts":"2026-11-12T05:24:22+00:00"} -> ACK
+10:54:39.547 [Meena] RECEIVED key=bangalore.whitefield.food id=req-0020-928f03 payload={"id":"req-0020-928f03","city":"bangalore","zone":"whitefield","type":"food","ts":"2026-11-12T05:24:39+00:00"} -> ACK
+10:54:45.725 [Meena] RECEIVED key=bangalore.whitefield.food id=req-0023-ef251a payload={"id":"req-0023-ef251a","city":"bangalore","zone":"whitefield","type":"food","ts":"2026-11-12T05:24:45+00:00"} -> ACK
+10:54:51.925 [Meena] RECEIVED key=bangalore.whitefield.food id=req-0026-1bb04e payload={"id":"req-0026-1bb04e","city":"bangalore","zone":"whitefield","type":"food","ts":"2026-11-12T05:24:51+00:00"} -> ACK
+10:54:58.104 [Meena] RECEIVED key=bangalore.koramangala.food id=req-0029-f78de5 payload={"id":"req-0029-f78de5","city":"bangalore","zone":"koramangala","type":"food","ts":"2026-11-12T05:24:58+00:00"} -> ACK
+10:55:02.270 [Meena] RECEIVED key=bangalore.whitefield.food id=req-0031-6408a7 payload={"id":"req-0031-6408a7","city":"bangalore","zone":"whitefield","type":"food","ts":"2026-11-12T05:25:02+00:00"} -> ACK
+10:55:16.708 [Meena] RECEIVED key=bangalore.koramangala.food id=req-0038-678598 payload={"id":"req-0038-678598","city":"bangalore","zone":"koramangala","type":"food","ts":"2026-11-12T05:25:16+00:00"} -> ACK
+10:55:20.830 [Meena] RECEIVED key=bangalore.indiranagar.food id=req-0040-447e0b payload={"id":"req-0040-447e0b","city":"bangalore","zone":"indiranagar","type":"food","ts":"2026-11-12T05:25:20+00:00"} -> ACK
+10:55:29.052 [Meena] RECEIVED key=bangalore.koramangala.food id=req-0044-fd0d64 payload={"id":"req-0044-fd0d64","city":"bangalore","zone":"koramangala","type":"food","ts":"2026-11-12T05:25:29+00:00"} -> ACK
+10:55:31.123 [Meena] RECEIVED key=bangalore.indiranagar.food id=req-0045-c47e86 payload={"id":"req-0045-c47e86","city":"bangalore","zone":"indiranagar","type":"food","ts":"2026-11-12T05:25:31+00:00"} -> ACK
+10:55:33.191 [Meena] RECEIVED key=bangalore.koramangala.food id=req-0046-1c72ac payload={"id":"req-0046-1c72ac","city":"bangalore","zone":"koramangala","type":"food","ts":"2026-11-12T05:25:33+00:00"} -> ACK
+10:55:43.520 [Meena] RECEIVED key=bangalore.indiranagar.food id=req-0051-9f1872 payload={"id":"req-0051-9f1872","city":"bangalore","zone":"indiranagar","type":"food","ts":"2026-11-12T05:25:43+00:00"} -> ACK
+10:55:55.974 [Meena] RECEIVED key=bangalore.koramangala.food id=req-0057-56639b payload={"id":"req-0057-56639b","city":"bangalore","zone":"koramangala","type":"food","ts":"2026-11-12T05:25:55+00:00"} -> ACK
+10:55:58.026 [Meena] RECEIVED key=bangalore.whitefield.food id=req-0058-2b4636 payload={"id":"req-0058-2b4636","city":"bangalore","zone":"whitefield","type":"food","ts":"2026-11-12T05:25:57+00:00"} -> ACK
+10:56:07.274 [Meena] STOPPED acked=15 nacked=0

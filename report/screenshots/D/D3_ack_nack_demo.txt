@@ -1,0 +1,24 @@
+=== 1. valid message -> basic_ack ===
+queue depth after publish: 1
+10:56:41.553 [D3] RECEIVED key=d3.demo.592a1a id=d3-valid payload={"id":"d3-valid","city":"bangalore","zone":"koramangala","type":"food","ts":"2026-11-12T05:26:41+00:00"} -> ACK
+queue depth after handling: 0 (0 = acknowledged and removed)
+
+=== 2. malformed message (no zone) -> basic_nack(requeue=False) ===
+queue depth after publish: 1
+10:56:41.809 [D3] REJECTED key=d3.demo.592a1a id=d3-malformed reason=missing field 'zone' payload={"id":"d3-malformed","city":"bangalore","type":"food","ts":"2026-11-12T05:26:41+00:00"} redelivered=False -> NACK (requeue=False, discarded)
+queue depth after handling: 0 (0 = discarded; no dead-letter exchange is configured, so it is gone)
+
+=== 3. consumer crashes before ACK ===
+consumer received id=d3-valid redelivered=False and then 'crashes' (channel closed, no ack sent)
+queue depth after the crash: 1 (1 = the broker put the unacknowledged message back)
+next consumer gets it again: redelivered=True
+
+=== 4. poison message with requeue=True (what NOT to do) ===
+attempt 1: 10:56:42.355 [D3] REJECTED key=d3.demo.592a1a id=d3-malformed reason=missing field 'zone' payload={"id":"d3-malformed","city":"bangalore","type":"food","ts":"2026-11-12T05:26:41+00:00"} redelivered=False -> NACK (requeue=True, goes back to the queue)
+attempt 2: 10:56:42.420 [D3] REJECTED key=d3.demo.592a1a id=d3-malformed reason=missing field 'zone' payload={"id":"d3-malformed","city":"bangalore","type":"food","ts":"2026-11-12T05:26:41+00:00"} redelivered=True -> NACK (requeue=True, goes back to the queue)
+attempt 3: 10:56:42.475 [D3] REJECTED key=d3.demo.592a1a id=d3-malformed reason=missing field 'zone' payload={"id":"d3-malformed","city":"bangalore","type":"food","ts":"2026-11-12T05:26:41+00:00"} redelivered=True -> NACK (requeue=True, goes back to the queue)
+attempt 4: 10:56:42.515 [D3] REJECTED key=d3.demo.592a1a id=d3-malformed reason=missing field 'zone' payload={"id":"d3-malformed","city":"bangalore","type":"food","ts":"2026-11-12T05:26:41+00:00"} redelivered=True -> NACK (requeue=True, goes back to the queue)
+queue depth after 4 attempts: 1 (still 1: the message never leaves, every consumer sees it again forever)
+cleaned up with requeue=False; queue depth: 0
+
+RESULT: PASS (valid=ACK, malformed=NACK, crash redelivered, requeue loop shown)
