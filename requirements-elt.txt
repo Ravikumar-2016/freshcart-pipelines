@@ -1,0 +1,13 @@
+# Extra dependencies for the FreshCart ELT notebook (Part B, elt/freshcart_elt.ipynb).
+# Not installed by CI (CI only needs requirements.txt).
+#
+# The connector is capped below 3.13 on purpose: newer connectors (4.x/5.x) need
+# cryptography>=46, but mage-ai 0.9.80 (Part C) pins cryptography==42.0.4 in the same
+# .venv. Verified with `pip install --dry-run`: 3.12.4 leaves cryptography untouched.
+-r requirements.txt
+snowflake-connector-python>=3.6,<3.13
+python-dotenv>=1.0
+# connector 3.12 needs cffi<2, which breaks pynacl 1.6 (a mage-ai dependency via paramiko).
+# pynacl 1.5.0 accepts cffi 1.x. Verified: `pip check` clean after installing all of this.
+pynacl<1.6
+# ipykernel (needed to run the notebook in VS Code) is already installed with mage-ai.

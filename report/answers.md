@@ -50,8 +50,46 @@ Local pytest with `test_size=0.3`: `assert np.int64(105) == 120` (105 train rows
 Local pytest after the fix: `1 passed`.
 
 ## Part B
+> Part B setup notes / assumptions: Snowflake database is `FRESHCART_DB` (the reference notebook uses
+> `FRESHCART`); the DIM and REF schemas were added because the SQL needs them. There are no real APIs: all
+> input is the MOCK data from the course reference notebook (`elt/mock_data.py`). SQL is in `elt/sql/`,
+> Python in `elt/freshcart.py`, notebook `elt/freshcart_elt.ipynb`. The SQL is the reference notebook's,
+> unchanged (only `00_setup.sql` merges the student's database setup).
+
 ### B1
+Run on 2026-11-12 (run_id `20261112_040919`), exactly one pipeline run on an empty database (the notebook asserts
+bronze was empty first). Verified twice: in the notebook (16 of 16 checks PASS) and by a separate fresh connection.
+
+| Check | Expected | Actual |
+|---|---|---|
+| Raw order rows in bronze.orders_raw (6 web + 2 mobile) | 8 | 8 (web 6, mobile 2; 1 distinct run_id) |
+| Rows that pass cleaning (silver.orders_clean) | 6 | 6 |
+| Rows in quarantine | 2 (ORD-1004, ORD-1006) | 2 (ORD-1004 non_positive_amount; ORD-1006 bad_email + bad_pincode) |
+| Orders after deduplication | 4 | 4 |
+| Final gold line | 4 orders, 7,785.00, 126 points | `GOLD: 4 orders, revenue ₹7785.00, 126 loyalty points` |
+| Share of rows rejected | 25% | 25% |
+
+Other counts (flowchart): bronze.customers_raw 4, fx_raw 1, pincode_raw 3, dim.customers_scd2 4, ref.pincode_geo 3: all as expected.
+The five `quality_checks()` counts were all 0 (OK).
+
+Evidence (`report/screenshots/B/`):
+- `B1_notebook_part1.png`, `B1_notebook_part2.png`, `B1_notebook_part3.png`: the executed notebook rendered to HTML and captured with headless Edge (a real render of the saved outputs, NOT a Snowsight screenshot).
+- `B1_independent_verification.txt`: row counts of every table queried from a fresh connection.
+- The executed notebook itself: `elt/freshcart_elt.ipynb` (cells 1-10 executed; the "run it again" and clean-up cells are intentionally not run yet).
+- Optional: a Snowsight screenshot of `SELECT COUNT(*) FROM FRESHCART_DB.BRONZE.ORDERS_RAW` (= 8) if the instructor wants one from Snowflake's own UI.
+
 ### B2
+Evidence: `screenshots/B/B2_evidence.txt` (queries run after the single B1 run).
+
+> DRAFT written by the assistant from the real query output: rewrite in your own words before submitting.
+
+**ORD-1003**
+1. *Raw records (bronze.orders_raw).* Web, ingest_seq 2, flat JSON: `{"order_id":"ORD-1003","cust_email":"meera@outlook.com","cust_name":"MEERA S","order_date":"2026-09-02","amount":null,"currency":"INR","pincode":"400050","updated_at":"2026-09-02 09:10:00"}`. Mobile, ingest_seq 8, nested camelCase JSON: `{"orderId":"ORD-1003","customer":{"email":"Meera@Outlook.com","name":"Meera S"},"orderDate":"02/09/2026","total":{"value":"2,100.00","currency":"INR"},"deliveryPin":"400050","updatedAt":"2026-09-02T18:40:00"}`. The names differ because they come from two different APIs; bronze stores each record exactly as received and the SQL unifies them later.
+2. *Same columns in silver.orders_checked (SQL_10).* The `unified` CTE maps web `raw:order_id`, `raw:cust_email`, `raw:amount`, `raw:updated_at` and mobile `raw:orderId`, `raw:customer.email`, `raw:total.value`, `raw:updatedAt` onto the same column names. The `typed` CTE then applies `LOWER(TRIM(...))` to the email, `INITCAP(...)` to the name, `COALESCE(TRY_TO_DATE(order_date,'YYYY-MM-DD'), TRY_TO_DATE(...,'DD/MM/YYYY'), TRY_TO_DATE(...,'MON DD, YYYY'))` for the date (the mobile `02/09/2026` becomes 2026-09-02), `TRY_TO_DECIMAL(REGEXP_REPLACE(amount,'[^0-9.-]',''),12,2)` for the amount (`"2,100.00"` becomes 2100.00; web null stays NULL) and `TRY_TO_TIMESTAMP_NTZ(updated_at)`. Both copies pass validation (empty `reasons`): a NULL amount is allowed.
+3. *Which copy survives (SQL_20).* `QUALIFY ROW_NUMBER() OVER (PARTITION BY order_id ORDER BY updated_at DESC, ingest_seq DESC) = 1` numbers the copies of each order newest first. The mobile copy (updated_at 2026-09-02 18:40:00) is newer than the web copy (09:10:00), so it gets row number 1 and survives (ingest_seq 8, amount 2100.00); if the timestamps tied, the later arrival (`ingest_seq`) would win.
+4. *Gold calculation (SQL_40).* Currency INR has fx_rate 1.0000, so `amount_inr = ROUND(2100.00 × 1.0000, 2) = 2100.00`. Meera is Platinum (valid from 2022-11-01), multiplier 3, so `loyalty_points = FLOOR(2100.00 / 100) × 3 = 21 × 3 = 63`.
+
+**ORD-1005 vs ORD-1001 (Priya).** The tier is looked up *on the order date*. The table `dim.customers_scd2` holds Priya's history: Silver from 2023-04-10 to 2026-09-02, Gold from 2026-09-03. In SQL_40 the join is `LEFT JOIN dim.customers_scd2 c ON c.email = o.email AND o.order_date BETWEEN c.valid_from AND c.valid_to`, followed by `LEFT JOIN ref.tier_multiplier m ON m.tier = c.tier`. ORD-1001 is dated 2026-09-01 (Silver, ×1: FLOOR(1250/100) × 1 = 12 points); ORD-1005 is dated 2026-09-03 (Gold, ×2: FLOOR(899/100) × 2 = 8 × 2 = 16 points).
 ### B3
 ### B4
 ### B5

@@ -1,0 +1,33 @@
+B1 independent verification (fresh connection, queried directly from Snowflake)
+checked at (UTC): 2026-11-12 04:10:01
+Connected: role=ACCOUNTADMIN warehouse=FRESHCART_WH database=FRESHCART_DB
+  bronze.orders_raw             8 rows
+  bronze.customers_raw          4 rows
+  bronze.fx_raw                 1 rows
+  bronze.pincode_raw            3 rows
+  silver.orders_checked         8 rows
+  silver.orders_clean           6 rows
+  silver.orders_dedup           4 rows
+  silver.orders_enriched        4 rows
+  dim.customers_scd2            4 rows
+  ref.fx_daily                144 rows
+  ref.pincode_geo               3 rows
+  quarantine.orders             2 rows
+  gold.fct_orders               4 rows
+
+bronze.orders_raw by source: [('mobile', 2), ('web', 6)]
+distinct run_ids in bronze.orders_raw: 1 (1 = exactly one run)
+
+quarantine.orders:
+SOURCE ORDER_ID                               REASONS
+   web ORD-1004         [\n  "non_positive_amount"\n]
+   web ORD-1006 [\n  "bad_email",\n  "bad_pincode"\n]
+
+gold.fct_orders:
+ORDER_ID     TIER  AMOUNT CURRENCY FX_RATE AMOUNT_INR  LOYALTY_POINTS
+ORD-1001   Silver 1250.00      INR  1.0000    1250.00              12
+ORD-1002   Silver   42.50      USD 83.2000    3536.00              35
+ORD-1003 Platinum 2100.00      INR  1.0000    2100.00              63
+ORD-1005     Gold  899.00      INR  1.0000     899.00              16
+
+gold totals: (4, Decimal('7785.00'), 126)

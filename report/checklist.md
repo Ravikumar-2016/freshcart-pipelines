@@ -20,9 +20,18 @@ Status: [ ] not started, [~] in progress, [x] done WITH evidence (cite it).
 - [x] A3 fixing commit 0c83c3e + restored green run: report/screenshots/A/A3_final_green.png (verified: CI #3 green)
 - [ ] Repo visibility: private now; share with instructor or make public
 
-## Part B (needs Snowflake + FreshCart notebook)
-- [ ] B1 baseline: 8 raw / 6 clean / 2 quarantine / 4 dedup / 4 orders, 7,785.00, 126 pts / 25%
-- [ ] B2 trace ORD-1003 (4 points) and ORD-1005
+## Part B (needs Snowflake account; reference notebooks now AVAILABLE, see report/part_b_plan.md)
+- [x] Reference material inspected: flowchart (13 steps) + 3 notebooks (simple/commented/colab); `elt/freshcart_elt.ipynb` prepared (outputs stripped, login from .env), NOT executed
+- [x] Part B dependencies identified (requirements-elt.txt); NOT installed
+- [ ] SECURITY: reference notebooks contain someone else's Snowflake login (git-ignored; never commit/use); consider telling the instructor
+- [x] Snowflake infrastructure created by student (FRESHCART_WH, FRESHCART_DB; BRONZE/SILVER/GOLD/QUARANTINE) per student's report; not independently verified by me
+- [x] Local prep done: snowflake-connector-python 3.12.4 + python-dotenv + pynacl<1.6 installed, `pip check` clean, Mage still imports, pytest passes; `elt/test_connection.py` written; `.env.example` updated; `.env` git-ignored
+- [ ] `.env` filled in by student and `python elt\test_connection.py` run successfully (NOT done: no evidence yet)
+- [x] Database name/schemas: FRESHCART_DB used; DIM and REF schemas added in elt/sql/00_setup.sql and created (setup ran OK, 9 tables exist)
+- [x] Structure: SQL in elt/sql/*.sql, Python in elt/freshcart.py + elt/mock_data.py (mock data from reference notebook, labelled), notebook elt/freshcart_elt.ipynb; `pytest.ini` added so CI only collects tests/ (elt/test_connection.py imports snowflake)
+- [ ] Notebook cells 11-12 ('run it again', clean-up) intentionally NOT executed yet; final submission needs the notebook fully executed after B3-B5
+- [x] B1 baseline: 8 raw / 6 clean / 2 quarantine / 4 dedup / 4 orders, 7,785.00, 126 pts / 25%: ALL VERIFIED (notebook 16/16 PASS + independent query). Evidence: screenshots/B/B1_notebook_part1-3.png, B1_independent_verification.txt, elt/freshcart_elt.ipynb. Rendered notebook captures, not Snowsight screenshots.
+- [~] B2 trace ORD-1003 (4 points) and ORD-1005: evidence screenshots/B/B2_evidence.txt; DRAFT trace in answers.md, student must rewrite in own words
 - [ ] B3 unsupported_currency rule; before/after; gold total; quarantine answer
 - [ ] B4 predictions (BEFORE run) vs actuals; row_hash/MERGE explanation
 - [ ] B5 sixth check; deliberate failure + PROBLEM output; ELT vs ETL answer
@@ -49,7 +58,7 @@ Status: [ ] not started, [~] in progress, [x] done WITH evidence (cite it).
 - [ ] Stream to lakehouse; double run does not double gold totals
 
 ## Open blockers
-- [ ] FreshCart notebook + flowchart (missing)
+- [x] FreshCart notebook + flowchart (found in elt/ and elt/reference/)
 - [ ] Mage Iris reference notebook (missing)
 - [ ] Zomato stream slides (missing, optional)
 - [ ] Instructor: is localhost acceptable instead of Cloudflare tunnel?

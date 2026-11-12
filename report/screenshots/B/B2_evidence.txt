@@ -1,0 +1,40 @@
+Connected: role=ACCOUNTADMIN warehouse=FRESHCART_WH database=FRESHCART_DB
+B2 evidence (queried from Snowflake after the single B1 run)
+
+--- 1. ORD-1003 raw records in bronze.orders_raw (field names differ: web flat vs mobile nested/camelCase) ---
+ INGEST_SEQ SOURCE                                                                                                                                                                                                         RAW_JSON
+          2    web                    {"amount":null,"currency":"INR","cust_email":"meera@outlook.com","cust_name":"MEERA S","order_date":"2026-09-02","order_id":"ORD-1003","pincode":"400050","updated_at":"2026-09-02 09:10:00"}
+          8 mobile {"customer":{"email":"Meera@Outlook.com","name":"Meera S"},"deliveryPin":"400050","orderDate":"02/09/2026","orderId":"ORD-1003","total":{"currency":"INR","value":"2,100.00"},"updatedAt":"2026-09-02T18:40:00"}
+
+--- 2. ORD-1003 in silver.orders_checked (both copies mapped to the same columns by SQL_10) ---
+ INGEST_SEQ SOURCE ORDER_ID             EMAIL    NAME ORDER_DATE  AMOUNT CURRENCY PINCODE          UPDATED_AT REASONS
+          2    web ORD-1003 meera@outlook.com Meera S 2026-09-02    None      INR  400050 2026-09-02 09:10:00      []
+          8 mobile ORD-1003 meera@outlook.com Meera S 2026-09-02 2100.00      INR  400050 2026-09-02 18:40:00      []
+
+--- 3. ORD-1003 in silver.orders_dedup (SQL_20: ROW_NUMBER ... ORDER BY updated_at DESC, ingest_seq DESC = 1) ---
+ORDER_ID  INGEST_SEQ SOURCE          UPDATED_AT  AMOUNT
+ORD-1003           8 mobile 2026-09-02 18:40:00 2100.00
+
+--- 4. ORD-1003 in gold.fct_orders (SQL_40: amount_inr = ROUND(amount*fx_rate,2); points = FLOOR(amount_inr/100)*multiplier) ---
+ORDER_ID     TIER  MULTIPLIER  AMOUNT CURRENCY FX_RATE AMOUNT_INR  LOYALTY_POINTS
+ORD-1003 Platinum           3 2100.00      INR  1.0000    2100.00              63
+
+--- 5. Check the arithmetic in SQL: ORD-1003 ---
+ AMOUNT FX_RATE AMOUNT_INR_CHECK  FLOOR_HUNDREDS  MULTIPLIER  POINTS_CHECK
+2100.00  1.0000          2100.00              21           3            63
+
+--- 6. Priya's tier history (dim.customers_scd2; join = email AND order_date BETWEEN valid_from AND valid_to) ---
+CUST_ID             EMAIL   TIER VALID_FROM   VALID_TO  IS_CURRENT
+CUST-01 priya.r@gmail.com Silver 2023-04-10 2026-09-02       False
+CUST-01 priya.r@gmail.com   Gold 2026-09-03 9999-12-31        True
+
+--- 7. ORD-1001 vs ORD-1005 (Priya): tier on each order date, multiplier, points ---
+ORDER_ID ORDER_DATE   TIER  MULTIPLIER AMOUNT_INR  HUNDREDS  LOYALTY_POINTS
+ORD-1001 2026-09-01 Silver           1    1250.00        12              12
+ORD-1005 2026-09-03   Gold           2     899.00         8              16
+
+--- 8. ref.tier_multiplier ---
+    TIER  MULTIPLIER
+  Silver           1
+    Gold           2
+Platinum           3
