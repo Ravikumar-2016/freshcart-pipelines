@@ -1,0 +1,54 @@
+B4 PRE-RUN state (read-only queries; nothing modified)
+checked at (UTC): 2026-11-12 04:27:16
+Connected: role=ACCOUNTADMIN warehouse=FRESHCART_WH database=FRESHCART_DB
+
+--- 1. dim.customers_scd2 now (all customers) ---
+CUST_ID             EMAIL     TIER VALID_FROM   VALID_TO  IS_CURRENT
+CUST-01 priya.r@gmail.com   Silver 2023-04-10 2026-09-02       False
+CUST-01 priya.r@gmail.com     Gold 2026-09-03 9999-12-31        True
+CUST-02  arjun.k@yahoo.in   Silver 2024-01-15 9999-12-31        True
+CUST-03 meera@outlook.com Platinum 2022-11-01 9999-12-31        True
+
+--- 2. bronze.customers_raw: raw copies vs distinct events ---
+ RAW_ROWS  DISTINCT_EVENTS  RUNS
+        8                4     2
+
+--- 3. ORD-1002 inputs (silver.orders_dedup) ---
+ORDER_ID            EMAIL ORDER_DATE AMOUNT CURRENCY
+ORD-1002 arjun.k@yahoo.in 2026-09-01  42.50      USD
+
+--- 4. gold.fct_orders now, with row_hash and published_at ---
+ORDER_ID             EMAIL     TIER  MULTIPLIER AMOUNT_INR  LOYALTY_POINTS             ROW_HASH                     PUBLISHED_AT
+ORD-1001 priya.r@gmail.com   Silver           1    1250.00              12  4284627330879666653 2026-11-11 20:09:29.606000-08:00
+ORD-1002  arjun.k@yahoo.in   Silver           1    3536.00              35 -7698738864412791922 2026-11-11 20:09:29.606000-08:00
+ORD-1003 meera@outlook.com Platinum           3    2100.00              63 -1632326326823866187 2026-11-11 20:09:29.606000-08:00
+ORD-1005 priya.r@gmail.com     Gold           2     899.00              16  -231880702048109571 2026-11-11 20:09:29.606000-08:00
+
+--- 5. distinct published_at values in gold (B1 run was 04:09 UTC, B3 re-run 04:23 UTC) ---
+                    PUBLISHED_AT  N_ROWS
+2026-11-11 20:09:29.606000-08:00       4
+
+--- 6. gold totals now ---
+ ORDERS REVENUE_INR  POINTS
+      4     7785.00     126
+
+=== READ-ONLY WHAT-IF (SELECT only; the event is NOT inserted anywhere) ===
+
+--- 7a. CONTROL: simulation WITHOUT the new event must reproduce today's gold (all same_row_hash_as_gold = TRUE) ---
+ORDER_ID SIM_TIER  SIM_MULT  SIM_POINTS  GOLD_POINTS_NOW  SAME_ROW_HASH_AS_GOLD
+ORD-1001   Silver         1          12               12                   True
+ORD-1002   Silver         1          35               35                   True
+ORD-1003 Platinum         3          63               63                   True
+ORD-1005     Gold         2          16               16                   True
+
+--- 7b. WHAT-IF: simulation WITH the new CUST-02 Gold event, effective 2026-08-15 ---
+ORDER_ID SIM_TIER  SIM_MULT  SIM_POINTS  GOLD_POINTS_NOW  SAME_ROW_HASH_AS_GOLD
+ORD-1001   Silver         1          12               12                   True
+ORD-1002     Gold         2          70               35                  False
+ORD-1003 Platinum         3          63               63                   True
+ORD-1005     Gold         2          16               16                   True
+
+--- 7c. WHAT-IF: CUST-02 rows in the simulated dim ---
+CUST_ID   TIER VALID_FROM   VALID_TO
+CUST-02 Silver 2024-01-15 2026-08-14
+CUST-02   Gold 2026-08-15 9999-12-31

@@ -126,6 +126,35 @@ although `silver.orders_checked` now has two copies of each (one per run). The p
 the new reason shows only in `silver.orders_checked`.
 
 ### B4
+Event to add (NOT yet added or run): `MOCK_CRM_TIER_EVENTS` += `{"cust_id": "CUST-02", "email": "arjun.k@yahoo.in", "tier": "Gold", "effective_from": "2026-08-15"}`.
+
+#### PRE-RUN PREDICTIONS (recorded 2026-11-12, before the event was added and before any B4 run)
+> The assistant derived these from the actual SQL and the current Snowflake data (read-only queries, evidence in
+> `report/screenshots/B/B4_prerun_state.txt`, queried 2026-11-12 04:27 UTC). The assignment requires predictions to be
+> your own and the viva checks this: read the reasoning until you can explain it yourself, and edit the wording into your own words
+> BEFORE the run. Do not change the numbers after the run.
+
+| Quantity | Now (before) | **Prediction** | Actual after run |
+|---|---|---|---|
+| Rows for CUST-02 in `dim.customers_scd2` | 1 (Silver) | **2** | *(fill after the run)* |
+| Tier used for ORD-1002 | Silver | **Gold** | |
+| Loyalty points for ORD-1002 | 35 | **70** | |
+| Total loyalty points in gold | 126 | **161** | |
+| Gold rows whose `published_at` changed | n/a | **1** (ORD-1002 only) | |
+
+Reasoning, with the evidence for each:
+1. **CUST-02 rows = 2.** `30_customers_scd2.sql` builds one row per tier-change event for each customer; each period ends the day before the next change starts (`DATEADD(day,-1,LEAD(valid_from))`), the last one runs to 9999-12-31. CUST-02 has only one event now (Silver, 2024-01-15 to 9999-12-31, evidence query 1). Adding Gold effective 2026-08-15 gives Silver 2024-01-15 to 2026-08-14 and Gold 2026-08-15 to 9999-12-31 = 2 rows. (Bronze keeps duplicate copies of every event, 8 raw rows for 4 distinct events, but the `QUALIFY ROW_NUMBER() ... = 1` on (cust_id, valid_from) removes them, so duplicates do not add rows.)
+2. **ORD-1002 tier = Gold.** `40_gold.sql` joins on `c.email = o.email AND o.order_date BETWEEN c.valid_from AND c.valid_to`. ORD-1002 has email `arjun.k@yahoo.in` and order_date 2026-09-01 (query 3). 2026-09-01 is after 2026-08-15, so it falls inside the Gold period and outside the Silver one (which ends 2026-08-14). It is Silver today only because the Gold event does not exist yet.
+3. **ORD-1002 points = 70.** `loyalty_points = FLOOR(amount_inr / 100) * multiplier`. `amount_inr` = ROUND(42.50 x 83.20, 2) = 3536.00 (unchanged: tier does not affect money). FLOOR(3536.00 / 100) = 35, and the Gold multiplier in `ref.tier_multiplier` is 2, so 35 x 2 = 70 (today 35 x 1 = 35).
+4. **Total points = 161.** Only ORD-1002 changes (the other orders belong to Priya and Meera): 12 + 70 + 63 + 16 = 161 (= 126 - 35 + 70). Revenue stays 7,785.00 because only the multiplier changes.
+5. **published_at changed on 1 row.** The MERGE only updates a row `WHEN MATCHED AND t.row_hash <> s.row_hash` and only then sets `published_at = CURRENT_TIMESTAMP()`. `row_hash` covers tier, multiplier and loyalty_points, so it changes for ORD-1002 and for no other order. Evidence that the other rows really are stable: all 4 gold rows still carry the B1 run's `published_at` (2026-11-11 20:09:29.606 -08:00) even after the B3 re-run (query 5), i.e. a re-run changes nothing when the values are unchanged.
+
+Cross-check (read-only what-if, a `SELECT` with the new event added inline; the event was NOT inserted and nothing was written): the **control** simulation without the event reproduced today's gold exactly (all 4 `row_hash` equal), and the simulation **with** the event gave CUST-02 = 2 rows, ORD-1002 = Gold x2 = 70 points, only ORD-1002's hash different, the other three equal.
+
+What cannot be known exactly without running: the actual `published_at` timestamp of the updated row (it will be the time of the run). The five predicted quantities themselves are fully determined by the logic above.
+
+Still to write after the run (4-6 sentences, your own words): how `row_hash` and `MERGE` make gold safe to re-run, and why bronze still grows by 8 order rows on every run.
+
 ### B5
 
 ## Part C
