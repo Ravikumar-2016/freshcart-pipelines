@@ -133,12 +133,39 @@ def quality_checks():
             "SELECT COUNT_IF(amount IS NOT NULL AND fx_rate IS NULL) FROM silver.orders_enriched",
         "orders with no city":
             "SELECT COUNT_IF(city IS NULL) FROM silver.orders_enriched",
+        # B5: the sixth check. An order cannot have happened in the future.
+        "orders dated in the future":
+            "SELECT COUNT_IF(order_date > CURRENT_DATE()) FROM silver.orders_dedup",
     }
     for name, sql in checks.items():
         value = query(sql)[0][0]
         print(f"   {name:38s} {value}   {'OK' if value == 0 else 'PROBLEM'}")
     rejected = query("SELECT COUNT_IF(ARRAY_SIZE(reasons) > 0) / NULLIF(COUNT(*), 0) FROM silver.orders_checked")[0][0]
     print(f"   {'share of rows rejected':38s} {float(rejected or 0):.0%}")
+
+
+# ---------------------------------------------------------------- 3. TRANSFORM (everything inside Snowflake)
+def transform(run_id):
+    """Rebuild silver, dim, ref and gold from what is already in bronze (no extract, no load).
+    This is stage 3 of run_pipeline(); B5 also calls it on its own to rebuild after cleaning up test data."""
+    query(f"SET run_id = '{run_id}'")          # SQL_10 stamps rejected rows with $run_id
+    run_sql(SQL_10_ORDERS_CLEAN)
+    run_sql(SQL_20_ORDERS_DEDUP)
+
+    # Pincodes: look up only the ones seen in the orders that we don't know yet
+    pins = [row[0] for row in query("""
+        SELECT DISTINCT o.pincode FROM silver.orders_dedup o
+        WHERE NOT EXISTS (SELECT 1 FROM ref.pincode_geo g WHERE g.pincode = o.pincode)""")]
+    print("   new pincodes to look up:", pins)
+    if pins:
+        lookups = [{"pincode": pin, "response": mock_pincode_response(pin)} for pin in pins]
+        pin_file = write_landing("pincode", lookups, run_id)
+        load_file(pin_file, "bronze.pincode_raw", f"pincode/{run_id}")
+
+    run_sql(SQL_30_CUSTOMERS_SCD2)
+    run_sql(SQL_31_FX_DAILY)
+    run_sql(SQL_32_PINCODE_GEO)
+    run_sql(SQL_40_GOLD)
 
 
 # ---------------------------------------------------------------- the whole pipeline
@@ -160,24 +187,7 @@ def run_pipeline():
     load_file(fx_file, "bronze.fx_raw", f"fx/{run_id}")
 
     print("3. TRANSFORM: bronze -> silver -> gold")
-    query(f"SET run_id = '{run_id}'")          # SQL_10 stamps rejected rows with $run_id
-    run_sql(SQL_10_ORDERS_CLEAN)
-    run_sql(SQL_20_ORDERS_DEDUP)
-
-    # Pincodes: look up only the ones seen in the orders that we don't know yet
-    pins = [row[0] for row in query("""
-        SELECT DISTINCT o.pincode FROM silver.orders_dedup o
-        WHERE NOT EXISTS (SELECT 1 FROM ref.pincode_geo g WHERE g.pincode = o.pincode)""")]
-    print("   new pincodes to look up:", pins)
-    if pins:
-        lookups = [{"pincode": pin, "response": mock_pincode_response(pin)} for pin in pins]
-        pin_file = write_landing("pincode", lookups, run_id)
-        load_file(pin_file, "bronze.pincode_raw", f"pincode/{run_id}")
-
-    run_sql(SQL_30_CUSTOMERS_SCD2)
-    run_sql(SQL_31_FX_DAILY)
-    run_sql(SQL_32_PINCODE_GEO)
-    run_sql(SQL_40_GOLD)
+    transform(run_id)
 
     print("4. CHECK")
     quality_checks()

@@ -193,6 +193,46 @@ Bronze, in contrast, is an append-only record of what was received: every run ex
 The duplicates are removed later in silver (`QUALIFY ROW_NUMBER() ... = 1` in `SQL_20_ORDERS_DEDUP`), which is why silver and gold stay the same size while bronze grows by 6 web + 2 mobile = 8 rows each run.
 
 ### B5
+**The sixth check** (`elt/freshcart.py`, `quality_checks()`, "orders dated in the future"; it should be 0):
+```sql
+SELECT COUNT_IF(order_date > CURRENT_DATE()) FROM silver.orders_dedup
+```
+(`quality_checks()` only prints OK/PROBLEM and does not stop the pipeline, as in the reference notebook.) To rebuild silver/gold on its own, the transform stage of `run_pipeline()` was moved into a function `transform(run_id)`;
+`run_pipeline()` calls it and behaves as before.
+
+**1. Control (real data): the new check is 0 / OK.** Output of `quality_checks()`: `orders dated in the future   0   OK`.
+
+**2. Deliberate failure.** Mock order, clearly marked: `order_id` `TEST-B5-FUTURE-DATE-001`, web format, `order_date` 2026-12-31 (the Snowflake session date was 2026-11-11), existing customer email `priya.r@gmail.com` and existing pincode `600041`,
+no amount, loaded with run_id `20261112_043630_b5test`. It has no amount on purpose: a missing amount is allowed and a future date has no FX rate, so no other check fires. It was loaded on its own (one landing file, one bronze row) and silver/gold were rebuilt with `transform()`.
+The exact `quality_checks()` output:
+```
+   rows gained or lost while enriching    0   OK
+   duplicate orders in gold               0   OK
+   orders with no customer match          0   OK
+   orders with an amount but no FX rate   0   OK
+   orders with no city                    0   OK
+   orders dated in the future             1   PROBLEM
+   share of rows rejected                 24%
+```
+(The rejected share drops from 25% to 24% only because bronze has one extra valid row.) The mock order also reached gold (5 orders; revenue 7,785.00 and 161 points unchanged, because its amount is empty).
+
+**3. Cleanup (only the test data).** Reading the SQL first: silver, dim and `ref.fx_daily` are `CREATE OR REPLACE` (rebuilt from bronze), `quarantine.orders` only inserts (the mock order is valid, 0 rows), gold's `MERGE` never deletes, bronze is append-only and `PUT` leaves the file in the stage.
+So the test data could only be in `bronze.orders_raw`, `gold.fct_orders`, the stage folder of the test run and the local landing file. Before deleting, the cell counted what matched the markers and asserted exact expectations (it would have stopped without deleting): bronze rows matching order id AND test run id = 1 (any run: 1; any order in the test run: 1),
+gold rows for that order id = 1, quarantine = 0, staged files = 1, while all other rows (bronze 24, gold 4) were not matched. Then it deleted exactly: 1 row from `bronze.orders_raw`, 1 row from `gold.fct_orders`, the one staged file, the local landing file.
+Nothing else was deleted or altered. (Snowflake Time Travel still holds the deleted rows for the retention period, as for any delete.)
+
+**4. Recovery.** `transform()` re-run from the cleaned bronze: `orders dated in the future   0   OK`, share rejected back to 25%, all other checks OK.
+Notebook cleanup checks: **19 of 19 PASS**. An independent snapshot taken after the cleanup (`B5_after_state.txt`) is **identical** to the baseline taken before the mock order existed (`B5_before_state.txt`): all 13 table counts, the four gold rows including `row_hash` and `published_at`, the bronze run_ids and the stage folders.
+
+Evidence (`report/screenshots/B/`): `B5_notebook_part1.png` (check, mock order, load, the PROBLEM output), `B5_notebook_part2.png` (pre-delete counts, delete, recovery, 19/19 PASS) (rendered notebook, headless Edge, not Snowsight),
+`B5_notebook_outputs.txt`, `B5_before_state.txt`, `B5_after_state.txt`. Notebook: section "B5" in `elt/freshcart_elt.ipynb`.
+
+> DRAFT written by the assistant: rewrite in your own words before submitting (assignment: 3-4 sentences). **One part needs you:** the assignment asks for "the one situation from the lecture"
+> where ETL still wins; the lecture material is not available to me, so the ETL situation below is a general textbook one. Replace it with the situation your lecture named.
+
+**Why is ELT better than ETL for FreshCart, and when would ETL still win?** FreshCart's sources send messy data in different shapes (flat web JSON, nested mobile JSON, bad emails, duplicates), so it is better to land everything unchanged in bronze first and clean it afterwards with SQL inside Snowflake.
+That keeps a raw copy of everything received, so a changed rule or a late fix is just a re-run of the SQL (B3 added a rule, B4 a tier change, both without re-extracting anything), and bad rows go to quarantine with reasons instead of being lost; the warehouse does the heavy work, so the Python side stays small.
+ETL would still win when the data must be changed *before* it is allowed to land in the warehouse, for example when personal or card data has to be masked or removed first for compliance, because ELT would store the raw sensitive values in bronze.
 
 ## Part C
 > Reference-notebook note: the Mage Iris reference notebook was NOT available. Everything below

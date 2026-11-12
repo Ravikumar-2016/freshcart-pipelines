@@ -1,0 +1,149 @@
+B5 notebook outputs (executed 2026-11-12 against Snowflake FRESHCART_DB)
+
+=== cell 65 ===
+the new check inside quality_checks():
+        # B5: the sixth check. An order cannot have happened in the future.
+        "orders dated in the future":
+            "SELECT COUNT_IF(order_date > CURRENT_DATE()) FROM silver.orders_dedup",
+session CURRENT_DATE(): 2026-11-11
+CONTROL: quality_checks() on the real data (the new check must be 0 / OK):
+   rows gained or lost while enriching    0   OK
+   duplicate orders in gold               0   OK
+   orders with no customer match          0   OK
+   orders with an amount but no FX rate   0   OK
+   orders with no city                    0   OK
+   orders dated in the future             0   OK
+   share of rows rejected                 25%
+
+=== cell 67 ===
+test order: {'order_id': 'TEST-B5-FUTURE-DATE-001', 'cust_email': 'priya.r@gmail.com', 'cust_name': 'B5 test order', 'order_date': '2026-12-31', 'amount': None, 'currency': 'INR', 'pincode': '600041', 'updated_at': '2026-11-12 09:00:00'}
+run id    : 20261112_043630_b5test
+marker not present anywhere yet: {'bronze': 0, 'gold': 0, 'quarantine': 0}
+baseline row counts: {'bronze.orders_raw': 24, 'bronze.customers_raw': 13, 'bronze.fx_raw': 3, 'bronze.pincode_raw': 3, 'silver.orders_checked': 24, 'silver.orders_clean': 18, 'silver.orders_dedup': 4, 'silver.orders_enriched': 4, 'dim.customers_scd2': 5, 'ref.fx_daily': 144, 'ref.pincode_geo': 3, 'quarantine.orders': 2, 'gold.fct_orders': 4}
+   ORDER_ID      TIER AMOUNT_INR  LOYALTY_POINTS             ROW_HASH  \
+0  ORD-1001    Silver    1250.00              12  4284627330879666653   
+1  ORD-1002      Gold    3536.00              70  3392257107350681567   
+2  ORD-1003  Platinum    2100.00              63 -1632326326823866187   
+3  ORD-1005      Gold     899.00              16  -231880702048109571   
+                      PUBLISHED_AT  
+0 2026-11-11 20:09:29.606000-08:00  
+1 2026-11-11 20:30:13.292000-08:00  
+2 2026-11-11 20:09:29.606000-08:00  
+3 2026-11-11 20:09:29.606000-08:00  
+
+=== cell 69 ===
+1. EXTRACT + 2. LOAD: only the mock order, in the web format
+   web: 1 records -> elt\landing\web\web__20261112_043630_b5test.json.gz
+   1 rows -> bronze.orders_raw
+3. TRANSFORM: bronze -> silver -> gold
+   new pincodes to look up: []
+4. CHECK
+   rows gained or lost while enriching    0   OK
+   duplicate orders in gold               0   OK
+   orders with no customer match          0   OK
+   orders with an amount but no FX rate   0   OK
+   orders with no city                    0   OK
+   orders dated in the future             1   PROBLEM
+   share of rows rejected                 24%
+
+=== cell 70 ===
+the offending row in silver.orders_dedup (order_date > CURRENT_DATE()):
+                  ORDER_ID  ORDER_DATE              EMAIL AMOUNT CURRENCY  \
+0  TEST-B5-FUTURE-DATE-001  2026-12-31  priya.r@gmail.com   None      INR   
+  PINCODE  
+0  600041  
+the mock order has also reached gold.fct_orders (gold's MERGE never deletes):
+                  ORDER_ID  ORDER_DATE      TIER AMOUNT_INR  LOYALTY_POINTS  \
+0                 ORD-1001  2026-09-01    Silver    1250.00            12.0   
+1                 ORD-1002  2026-09-01      Gold    3536.00            70.0   
+2                 ORD-1003  2026-09-02  Platinum    2100.00            63.0   
+3                 ORD-1005  2026-09-03      Gold     899.00            16.0   
+4  TEST-B5-FUTURE-DATE-001  2026-12-31      Gold       None             NaN   
+        CITY  
+0    Chennai  
+1  Bengaluru  
+2     Mumbai  
+3    Chennai  
+4    Chennai  
+gold totals now: (5, Decimal('7785.00'), 161)
+
+=== cell 72 ===
+                                             found  expected
+bronze.orders_raw: order id AND test run id      1         1
+bronze.orders_raw: order id (any run)            1         1
+bronze.orders_raw: test run id (any order)       1         1
+bronze.orders_raw: all OTHER rows (kept)        24        24
+gold.fct_orders: this order id                   1         1
+gold.fct_orders: all OTHER rows (kept)           4         4
+quarantine.orders: this order id                 0         0
+staged files in this run's stage folder          1         1
+rows that WILL be deleted:
+   INGEST_SEQ SOURCE                  RUN_ID  \
+0          25    web  20261112_043630_b5test   
+                                            RAW_JSON  
+0  {"amount":null,"currency":"INR","cust_email":"...  
+                  ORDER_ID  ORDER_DATE  TIER AMOUNT_INR
+0  TEST-B5-FUTURE-DATE-001  2026-12-31  Gold       None
+staged file: ['landing/orders_web/20261112_043630_b5test/web__20261112_043630_b5test.json.gz']
+
+=== cell 73 ===
+deleted from bronze.orders_raw: 1 row | deleted from gold.fct_orders: 1 row
+removed from the stage: [('landing/orders_web/20261112_043630_b5test/web__20261112_043630_b5test.json.gz', 'removed')]
+local landing file removed: True
+
+=== cell 75 ===
+3. TRANSFORM again (from the cleaned bronze)
+   new pincodes to look up: []
+4. CHECK
+   rows gained or lost while enriching    0   OK
+   duplicate orders in gold               0   OK
+   orders with no customer match          0   OK
+   orders with an amount but no FX rate   0   OK
+   orders with no city                    0   OK
+   orders dated in the future             0   OK
+   share of rows rejected                 25%
+
+=== cell 76 ===
+19 of 19 cleanup checks PASS
+                                                Check Baseline / expected  \
+0                                   bronze.orders_raw                  24   
+1                                bronze.customers_raw                  13   
+2                                       bronze.fx_raw                   3   
+3                                  bronze.pincode_raw                   3   
+4                               silver.orders_checked                  24   
+5                                 silver.orders_clean                  18   
+6                                 silver.orders_dedup                   4   
+7                              silver.orders_enriched                   4   
+8                                  dim.customers_scd2                   5   
+9                                        ref.fx_daily                 144   
+10                                    ref.pincode_geo                   3   
+11                                  quarantine.orders                   2   
+12                                    gold.fct_orders                   4   
+13  gold rows identical to baseline (incl. row_has...                 yes   
+14             bronze.orders_raw rows with the marker                   0   
+15               gold.fct_orders rows with the marker                   0   
+16             quarantine.orders rows with the marker                   0   
+17              silver.orders_dedup future-dated rows                   0   
+18                      staged files for the test run                   0   
+    Now Result  
+0    24   PASS  
+1    13   PASS  
+2     3   PASS  
+3     3   PASS  
+4    24   PASS  
+5    18   PASS  
+6     4   PASS  
+7     4   PASS  
+8     5   PASS  
+9   144   PASS  
+10    3   PASS  
+11    2   PASS  
+12    4   PASS  
+13  yes   PASS  
+14    0   PASS  
+15    0   PASS  
+16    0   PASS  
+17    0   PASS  
+18    0   PASS  
+
+error outputs in whole notebook: 0

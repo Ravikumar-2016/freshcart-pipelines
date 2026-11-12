@@ -1,0 +1,30 @@
+B5 BASELINE before any test data (read-only). Cleanup must restore exactly this state.
+checked at (UTC): 2026-11-12 04:35:00
+Connected: role=ACCOUNTADMIN warehouse=FRESHCART_WH database=FRESHCART_DB
+  bronze.orders_raw            24 rows
+  bronze.customers_raw         13 rows
+  bronze.fx_raw                 3 rows
+  bronze.pincode_raw            3 rows
+  silver.orders_checked        24 rows
+  silver.orders_clean          18 rows
+  silver.orders_dedup           4 rows
+  silver.orders_enriched        4 rows
+  dim.customers_scd2            5 rows
+  ref.fx_daily                144 rows
+  ref.pincode_geo               3 rows
+  quarantine.orders             2 rows
+  gold.fct_orders               4 rows
+
+gold.fct_orders:
+ORDER_ID     TIER AMOUNT_INR  LOYALTY_POINTS             ROW_HASH                     PUBLISHED_AT
+ORD-1001   Silver    1250.00              12  4284627330879666653 2026-11-11 20:09:29.606000-08:00
+ORD-1002     Gold    3536.00              70  3392257107350681567 2026-11-11 20:30:13.292000-08:00
+ORD-1003 Platinum    2100.00              63 -1632326326823866187 2026-11-11 20:09:29.606000-08:00
+ORD-1005     Gold     899.00              16  -231880702048109571 2026-11-11 20:09:29.606000-08:00
+
+future-dated orders in silver.orders_dedup now: 0
+session CURRENT_DATE(): 2026-11-11
+
+marker check (must all be 0): order_id LIKE 'TEST%' in bronze / gold / quarantine: 0 0 0
+run_ids in bronze.orders_raw: ['20261112_040919', '20261112_042326', '20261112_043003']
+stage folders under @bronze.landing/orders_web/: ['20261112_040919', '20261112_042326', '20261112_043003']
