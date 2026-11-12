@@ -315,14 +315,7 @@ load_iris -> validate_data -> prepare_data -> train_model -> {save_results, eval
 It was captured with headless Edge against a local server started with `REQUIRE_USER_AUTHENTICATION=0`
 (otherwise Mage shows a sign-in page).
 
-Cloudflare tunnel: NOT used, and I do not claim it satisfies the requirement. Why the assignment
-mentions it (my reading, unverified against the course material): in Colab the Mage server runs on
-a remote VM, so a tunnel is needed to open the UI in your own browser. Here Mage runs on the same
-Windows machine, so `http://localhost:6789` is directly reachable. `cloudflared` is not installed.
-If your instructor requires an actual tunnel URL: install cloudflared and run
-`cloudflared tunnel --url http://localhost:6789` while `mage start iris_project` is running, but note
-this publishes your Mage server to the internet (keep authentication ON, close it afterwards).
-Ask the instructor whether a localhost screenshot is acceptable.
+Cloudflare tunnel (UPDATE at final review): the first attempts failed (`cloudflared` "context deadline exceeded"; Cloudflare's quick-tunnel API returned HTTP 429/500; log: `screenshots/C/C3_cloudflare_tunnel_probe.txt`). The tunnel worked later the same day and the student captured `screenshots/C/C3_cloudflare_tunnel.png`: a browser screenshot with the `trycloudflare.com` address in the address bar showing the `iris_classifier` graph with all six blocks and the `train_model` branch. `C3_mage_ui_pipeline_graph.png` (local editor view) is kept as extra evidence. The earlier text of this section, which said a tunnel was not used, is superseded.
 
 ### C4
 New block: `validate_data` (transformer, `iris_project/transformers/validate_data.py`) between
@@ -349,6 +342,7 @@ Mage dependencies are in `requirements-mage.txt` (not installed by CI). pytest (
 A routing key is a list of words separated by dots (`city.zone.type`). In a binding pattern, **`*` matches exactly one word** (never zero, never two) and **`#` matches zero or more words**. Words that are not `*`/`#` must match literally.
 
 #### PRE-RUN PREDICTIONS (D1 on paper, recorded 2026-11-12 BEFORE any message was published to the broker)
+> TIMING NOTE (added at final review): Git does not independently timestamp these predictions. They were committed together with the broker test logs in commit `4d59385`; the expected recipients were stated in the student's request before any message was published, but that exists only in the working conversation. The predictions below are unchanged; the observed results are in the section "ACTUAL RESULT (D1 on the live broker)". The PDF report says this openly.
 > The expected recipients below were given by the student at the start of Part D; the assistant added the reasoning. The assignment wants the paper answer to be your own and the viva checks this:
 > make sure you can redo each row yourself. Do not change this table after the verification run.
 

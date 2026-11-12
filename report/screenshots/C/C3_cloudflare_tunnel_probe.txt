@@ -1,0 +1,19 @@
+﻿Cloudflare Quick Tunnel probe, run on 2026-11-12 07:04:06 UTC from the student's Windows machine
+(no tunnel connector was started; Mage UI was not exposed)
+
+1. Normal HTTPS to the same host (network path check):
+   GET https://api.trycloudflare.com/ -> dns=0.114717s connect=0.188344s tls=0.351189s firstbyte=0.430441s total=0.430565s http=405
+
+2. The call cloudflared makes to create a quick tunnel (POST /tunnel, 70 s limit):
+   attempt 1 -> dns=0.005442s connect=0.071247s tls=0.202494s firstbyte=5.100295s total=5.100748s http=200 | success=True 
+   (API answered successfully this time: cloudflared may work now)
+
+3. Earlier the same day (about 06:30 to 06:55 UTC), same machine and network, observed during troubleshooting:
+   - cloudflared 2026.10.7 (signature valid, Cloudflare, Inc.) failed 7 of 7 times: failed to request quick Tunnel: Post "https://api.trycloudflare.com/tunnel": context deadline exceeded (Client.Timeout exceeded while awaiting headers)
+   - the same POST made with curl and a 90 s limit failed 5 of 5 times: HTTP 429 "Tunnelstore request failed" (2 times) and HTTP 500 "Internal Server Error" after about 35 s (3 times)
+   - DNS, TCP and TLS to the host took under 0.2 s, no proxy and no VPN were configured, and Cloudflare's status page listed no Tunnel incident.
+
+4. Reading of the results: the failures were on Cloudflare's quick-tunnel service (it answered with errors, or too slowly for cloudflared's built-in 15 s limit), not on the local network or Mage. At 07:04 UTC the same call succeeded, so the problem was temporary.
+   No tunnel connector was run in this documentation session, so NO public Mage URL exists and this file is NOT evidence of Cloudflare access to the Mage UI. A real browser screenshot of Mage through a trycloudflare.com address is still outstanding.
+
+5. Update: the tunnel did work later (about 07:14 UTC, per the clock in the screenshot). The browser screenshot with the trycloudflare.com address in the address bar is report/screenshots/C/C3_cloudflare_tunnel.png. This probe file itself only records the earlier failures and the 07:04 UTC API check.

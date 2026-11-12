@@ -26,7 +26,7 @@ Status: [ ] not started, [~] in progress, [x] done WITH evidence (cite it).
 - [ ] SECURITY: reference notebooks contain someone else's Snowflake login (git-ignored; never commit/use); consider telling the instructor
 - [x] Snowflake infrastructure created by student (FRESHCART_WH, FRESHCART_DB; BRONZE/SILVER/GOLD/QUARANTINE) per student's report; not independently verified by me
 - [x] Local prep done: snowflake-connector-python 3.12.4 + python-dotenv + pynacl<1.6 installed, `pip check` clean, Mage still imports, pytest passes; `elt/test_connection.py` written; `.env.example` updated; `.env` git-ignored
-- [ ] `.env` filled in by student and `python elt\test_connection.py` run successfully (NOT done: no evidence yet)
+- [x] `.env` filled in and `python elt\test_connection.py` run successfully (done later; see the lines below)
 - [x] Database name/schemas: FRESHCART_DB used; DIM and REF schemas added in elt/sql/00_setup.sql and created (setup ran OK, 9 tables exist)
 - [x] Structure: SQL in elt/sql/*.sql, Python in elt/freshcart.py + elt/mock_data.py (mock data from reference notebook, labelled), notebook elt/freshcart_elt.ipynb; `pytest.ini` added so CI only collects tests/ (elt/test_connection.py imports snowflake)
 - [x] FINAL notebook executed top to bottom in one kernel in FRESHCART_FINAL (all checks pass; FINAL_notebook_check.txt, FINAL_notebook.html; FRESHCART_DB untouched). [old note:] B1, B3, B4, B5 were step by step; sections 11/12 were pending; the final complete notebook run is planned after B5 and the other parts (the B1 cells' stored outputs predate the sixth check, so a final full run must start from a fresh database). Snowflake state now: 3 runs in bronze (24 order rows), gold 4 orders / 7785.00 / 161 points
@@ -40,7 +40,7 @@ Status: [ ] not started, [~] in progress, [x] done WITH evidence (cite it).
 - [x] Mage compatibility (native Windows, Python 3.12.6): mage-ai 0.9.80 installed in .venv; `pip check` clean; `mage init` OK; UI served HTTP 200 on localhost; pytest still passes. WSL NOT needed so far. (`mage run` of a real pipeline still to be tested in C1.) Not yet added to requirements.txt (decide in Part C: it downgrades numpy/pandas/scikit-learn to 1.26.4/2.3.3/1.7.2, all within current ranges.)
 - [x] C1 graph (ASCII in answers.md; student may redraw) + `mage run ... --test` output: screenshots/C/C1_mage_run_test.txt
 - [x] C2 max_depth 1-5 table (depth 1 fails gate, no CSV; 2-5 pass) with logs C2_depth_N.txt; [~] explanation drafted, student must rewrite in own words
-- [x] C3 evaluate_model branch, confusion matrix + metrics (C3_eval_depth_2.txt), UI screenshot C3_mage_ui_pipeline_graph.png; [ ] Cloudflare tunnel NOT done (localhost used); ask instructor
+- [x] C3 evaluate_model branch, confusion matrix + metrics (C3_eval_depth_2.txt), UI screenshot C3_mage_ui_pipeline_graph.png; [x] Cloudflare tunnel screenshot done: screenshots/C/C3_cloudflare_tunnel.png
 - [~] C4 validate_data block + 2 @tests executed and passing locally; NOT yet committed/pushed, CI green for it NOT yet confirmed
 - [ ] Differences vs Mage reference notebook unknown (notebook not available); MIN_ACCURACY=0.90 is my own choice
 
@@ -64,7 +64,7 @@ Status: [ ] not started, [~] in progress, [x] done WITH evidence (cite it).
 - [x] FreshCart notebook + flowchart (found in elt/ and elt/reference/)
 - [ ] Mage Iris reference notebook (missing)
 - [ ] Zomato stream slides (missing, optional)
-- [ ] Instructor: is localhost acceptable instead of Cloudflare tunnel?
+- [x] Cloudflare tunnel obtained (screenshot C3_cloudflare_tunnel.png); localhost question no longer needed
 
 ## Final submission checklist (finalisation)
 - [x] FreshCart notebook with all outputs (elt/freshcart_elt.ipynb, final run) | [x] Mage project + executed notebook (iris_project/, iris_project/iris_classifier_run.ipynb) | [x] stream/dispatcher.py, stream/driver.py (+ bonus scripts)
@@ -73,7 +73,7 @@ Status: [ ] not started, [~] in progress, [x] done WITH evidence (cite it).
 - [ ] USER: rewrite the draft explanations in own words (A2, B2-B5 incl. the lecture's ETL situation, C2, D, bonus) in report/report.html (and answers.md)
 - [ ] USER: commit the untracked files (requirements-stream.txt, tests/test_topic_routing.py, report/, notebooks, handover) and push; confirm the latest GitHub Actions run is green (private repo: not readable from here)
 - [ ] USER: share the private repo with the instructor (or make it public) and put the URL in the report (already in report.html)
-- [ ] USER (instructor): Cloudflare tunnel requirement for C3 (localhost used); notebook/tool limits: evidence is rendered notebooks and logs, not Snowsight screenshots
+- [x] C3 Cloudflare requirement met by C3_cloudflare_tunnel.png. Remaining notebook/tool limits: evidence is rendered notebooks and logs, not Snowsight screenshots
 
 ## Finalisation (submission stage)
 - [x] Final PDF generated: report/23BCS095_Gunti_Ravi_Kumar_Pipelines.pdf (body 5 pages, limit 8, plus screenshot appendix). Draft explanations are listed in report/USER_REVIEW_REQUIRED.md (NOT yet reviewed by the student); B5's lecture ETL situation is a visible placeholder for the student.
@@ -83,4 +83,4 @@ Status: [ ] not started, [~] in progress, [x] done WITH evidence (cite it).
 - [x] Original assignment (Assignment_DE.docx, in Downloads) and course bundle (material.zip) inspected; requirement-by-requirement audit in report/AUDIT.md
 - [x] B5 ETL answer now supported by the course notes in material.zip (ETL lecture PDF and RiverRetail xlsx NOT found; student to confirm)
 - [x] Report corrected (B4 hash columns, C2 threshold wording, C3 metadata.yaml, D2 times/log excerpt, reflection factual); PDF regenerated, 5 body pages + 20 appendix pages, text selectable
-- [ ] NEEDS INSTRUCTOR CONFIRMATION: Cloudflare tunnel wording in C3; Snowsight/terminal screenshots vs notebook renders and logs; accuracy threshold for the Mage gate
+- [ ] NEEDS INSTRUCTOR CONFIRMATION (Cloudflare resolved): Snowsight/terminal screenshots vs notebook renders and logs; accuracy threshold for the Mage gate
